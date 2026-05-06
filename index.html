@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Shop Química - Inicio</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="particles"></div>
+    
+    <button id="loginBtn" class="login-btn-top">
+        <span>🔐 Iniciar Sesión</span>
+    </button>
+    
+    <button id="userBtn" class="user-btn-top hidden">
+        <span id="userDisplay">👤 Usuario</span>
+    </button>
+    
+    <button id="cartBtn" class="cart-btn-top">
+        <span>🛒 Carrito</span>
+        <span id="cartCount" class="cart-count hidden">0</span>
+    </button>
+
+    <header class="main-header">
+        <div class="header-content">
+            <div class="logo-title">
+                <div class="logo">�</div>
+                <h1>E-Shop Química</h1>
+            </div>
+            <nav class="nav-links">
+                <a href="#" class="nav-link active" data-section="inicio">Inicio</a>
+                <a href="#" class="nav-link" data-section="ventas">Ventas</a>
+                <a href="#" class="nav-link" data-section="productos">Productos</a>
+                <a href="#" class="nav-link" data-section="nosotros">Nosotros</a>
+                <a href="#" class="nav-link" data-section="servicios">Servicios</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section id="inicioContent" class="content-section">
+            <div class="hero">
+                <div class="hero-content">
+                    <h2 class="hero-title" id="heroTitle">Soluciones Químicas <span class="gradient-text">Innovadoras</span></h2>
+                    <p class="hero-subtitle">Descubre nuestra amplia gama de productos químicos de la más alta calidad para todas tus necesidades industriales y de laboratorio.</p>
+                    <div class="hero-buttons">
+                        <a href="#" class="btn-primary" data-section="productos">Ver Productos</a>
+                        <a href="#" class="btn-secondary" data-section="nosotros">Saber Más</a>
+                    </div>
+                </div>
+                <div class="hero-animation">
+                    <div class="floating-icons">
+                        <div class="floating-icon" style="--i:0">⚗️</div>
+                        <div class="floating-icon" style="--i:1">🧪</div>
+                        <div class="floating-icon" style="--i:2">🔬</div>
+                        <div class="floating-icon" style="--i:3">🧴</div>
+                        <div class="floating-icon" style="--i:4">💧</div>
+                        <div class="floating-icon" style="--i:5">✨</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="features">
+                <div class="feature-card" style="--delay:0">
+                    <div class="feature-icon">🚀</div>
+                    <h3>Entrega Rápida</h3>
+                    <p>Recibe tus productos en menos de 48 horas hábiles</p>
+                </div>
+                <div class="feature-card" style="--delay:1">
+                    <div class="feature-icon">🛡️</div>
+                    <h3>Seguridad Garantizada</h3>
+                    <p>Todos los productos con certificaciones oficiales</p>
+                </div>
+                <div class="feature-card" style="--delay:2">
+                    <div class="feature-icon">�</div>
+                    <h3>Asesoría Técnica</h3>
+                    <p>Equipo de expertos listos para ayudarte</p>
+                </div>
+                <div class="feature-card" style="--delay:3">
+                    <div class="feature-icon">💎</div>
+                    <h3>Calidad Premium</h3>
+                    <p>Productos con la más alta pureza del mercado</p>
+                </div>
+            </div>
+        </section>
+        
+        <section id="productosContent" class="content-section hidden">
+            <div class="section-header">
+                <h2>Nuestros Productos</h2>
+                <p>Explora nuestra completa línea de productos químicos</p>
+            </div>
+            <div id="productGrid" class="product-grid"></div>
+        </section>
+        
+        <section id="nosotrosContent" class="content-section hidden">
+            <div class="about-container">
+                <div class="about-header">
+                    <h2>¿Quiénes Somos?</h2>
+                    <p class="about-subtitle">Tu socio confiable en productos químicos de calidad</p>
+                </div>
+                <div class="about-content">
+                    <div class="about-card">
+                        <div class="about-icon">🏢</div>
+                        <h3>Nuestra Historia</h3>
+                        <p>Con más de 15 años de experiencia en el mercado, E-Shop Química se ha consolidado como líder en la distribución de productos químicos industriales y de laboratorio. Nuestro compromiso con la calidad y la seguridad nos ha hecho merecedores de la confianza de cientos de empresas.</p>
+                    </div>
+                    <div class="about-card">
+                        <div class="about-icon">🎯</div>
+                        <h3>Nuestra Misión</h3>
+                        <p>Proporcionar productos químicos de la más alta calidad, cumpliendo con todas las normativas de seguridad y medio ambiente, mientras brindamos un servicio al cliente excepcional que supera las expectativas.</p>
+                    </div>
+                    <div class="about-card">
+                        <div class="about-icon">🌟</div>
+                        <h3>Nuestros Valores</h3>
+                        <p>Excelencia, seguridad, responsabilidad ambiental y honestidad son los pilares que guían cada una de nuestras acciones. Creemos en hacer las cosas bien, siempre.</p>
+                    </div>
+                </div>
+                <div class="contact-info">
+                    <h3>Información de Contacto</h3>
+                    <div class="contact-grid">
+                        <div class="contact-item">
+                            <span class="contact-icon">📍</span>
+                            <div>
+                                <h4>Dirección</h4>
+                                <p>Calle Principal 123, Ciudad Industrial</p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">📞</span>
+                            <div>
+                                <h4>Teléfono</h4>
+                                <p>+1 (555) 123-4567</p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">✉️</span>
+                            <div>
+                                <h4>Email</h4>
+                                <p>info@eshopquimica.com</p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">🕐</span>
+                            <div>
+                                <h4>Horario</h4>
+                                <p>Lunes a Viernes: 8:00 AM - 6:00 PM</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="ventasContent" class="content-section hidden">
+            <div class="ventas-container">
+                <div class="ventas-header">
+                    <h2>Ventas</h2>
+                    <p class="ventas-subtitle">Compra productos químicos de calidad premium</p>
+                </div>
+                <div class="ventas-tabs">
+                    <button class="ventas-tab active" data-ventas-tab="productos">Productos</button>
+                    <button class="ventas-tab" data-ventas-tab="historial">Historial de Compras</button>
+                </div>
+                <div id="ventasProductos" class="ventas-tab-content">
+                    <div id="ventasProductGrid" class="product-grid"></div>
+                </div>
+                <div id="ventasHistorial" class="ventas-tab-content hidden">
+                    <div id="historialContent" class="historial-content"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="serviciosContent" class="content-section hidden">
+            <div class="services-container">
+                <div class="services-header">
+                    <h2>Nuestros Servicios</h2>
+                    <p class="services-subtitle">Soluciones completas para tus necesidades químicas</p>
+                </div>
+                <div class="services-grid">
+                    <div class="service-card">
+                        <div class="service-icon">🚚</div>
+                        <h3>Entrega Rápida</h3>
+                        <p>Envíos inmediatos a toda la región con seguimiento en tiempo real. Recibe tus productos en menos de 48 horas hábiles.</p>
+                    </div>
+                    <div class="service-card">
+                        <div class="service-icon">🔬</div>
+                        <h3>Asesoría Técnica</h3>
+                        <p>Equipo de químicos expertos listos para ayudarte a seleccionar el producto adecuado para tu aplicación específica.</p>
+                    </div>
+                    <div class="service-card">
+                        <div class="service-icon">📦</div>
+                        <h3>Empaque Personalizado</h3>
+                        <p>Soluciones de empaque según tus requerimientos, desde cantidades pequeñas hasta contenedores industriales.</p>
+                    </div>
+                    <div class="service-card">
+                        <div class="service-icon">🛡️</div>
+                        <h3>Certificaciones</h3>
+                        <p>Todos nuestros productos cuentan con certificaciones de calidad y hojas de seguridad (MSDS) actualizadas.</p>
+                    </div>
+                    <div class="service-card">
+                        <div class="service-icon">🎓</div>
+                        <h3>Capacitaciones</h3>
+                        <p>Cursos y talleres sobre manejo seguro de productos químicos para tu personal.</p>
+                    </div>
+                    <div class="service-card">
+                        <div class="service-icon">♻️</div>
+                        <h3>Gestión Ambiental</h3>
+                        <p>Asesoría en el manejo y disposición final de residuos químicos según normativas ambientales.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="loginModal" class="modal hidden">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose">×</button>
+            <div class="modal-body">
+                <div class="login-header">
+                    <div class="logo">�</div>
+                    <h2>Iniciar Sesión</h2>
+                    <p class="subtitle">Ingresa tus credenciales para continuar</p>
+                </div>
+                
+                <div class="tab-buttons">
+                    <button class="tab-btn active" data-tab="login">Iniciar Sesión</button>
+                    <button class="tab-btn" data-tab="register">Registrarse</button>
+                </div>
+                
+                <form id="loginForm" class="auth-form">
+                    <div class="form-group">
+                        <label for="loginUsername">Usuario:</label>
+                        <input type="text" id="loginUsername" required placeholder="Ingresa tu usuario">
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Contraseña:</label>
+                        <input type="password" id="loginPassword" required placeholder="Ingresa tu contraseña">
+                    </div>
+                    <button type="submit" class="btn">
+                        <span class="btn-text">Ingresar</span>
+                        <span class="btn-glow"></span>
+                    </button>
+                    <p id="loginError" class="error"></p>
+                </form>
+                
+                <form id="registerForm" class="auth-form hidden">
+                    <div class="form-group">
+                        <label for="regName">Nombre Completo:</label>
+                        <input type="text" id="regName" required placeholder="Ingresa tu nombre completo">
+                    </div>
+                    <div class="form-group">
+                        <label for="regEmail">Correo Electrónico:</label>
+                        <input type="email" id="regEmail" required placeholder="Ingresa tu correo">
+                    </div>
+                    <div class="form-group">
+                        <label for="regUsername">Nombre de Usuario:</label>
+                        <input type="text" id="regUsername" required placeholder="Elige un nombre de usuario">
+                    </div>
+                    <div class="form-group">
+                        <label for="regPassword">Contraseña:</label>
+                        <input type="password" id="regPassword" required placeholder="Crea una contraseña">
+                    </div>
+                    <button type="submit" class="btn">
+                        <span class="btn-text">Registrarse</span>
+                        <span class="btn-glow"></span>
+                    </button>
+                    <p id="registerError" class="error"></p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="productModal" class="modal hidden">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <button class="modal-close" id="productModalClose">×</button>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <div id="cartModal" class="modal hidden">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <button class="modal-close" id="cartModalClose">×</button>
+            <div class="modal-body">
+                <div class="cart-header">
+                    <h2>🛒 Carrito de Compras</h2>
+                </div>
+                <div id="cartItems" class="cart-items"></div>
+                <div id="cartEmpty" class="cart-empty hidden">
+                    <p>Tu carrito está vacío</p>
+                </div>
+                <div id="cartTotal" class="cart-total hidden">
+                    <div class="total-row">
+                        <span>Subtotal:</span>
+                        <span id="subtotal">$0.00</span>
+                    </div>
+                    <div class="total-row final">
+                        <span>Total:</span>
+                        <span id="total">$0.00</span>
+                    </div>
+                    <button id="checkoutBtn" class="btn">
+                        <span class="btn-text">Finalizar Compra</span>
+                        <span class="btn-glow"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
