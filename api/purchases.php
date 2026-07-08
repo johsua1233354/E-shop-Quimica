@@ -2,13 +2,24 @@
 require_once '../config.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
-$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-$path = str_replace('/api/purchases', '', $path);
+$requestPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+
+// Soporta instalación en subcarpeta (ej: /miapp/api/purchases)
+$apiBase = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/'); // ej: /miapp/api
+$routeBase = $apiBase . '/purchases';
+
+$path = $requestPath;
+if (strpos($path, $routeBase) === 0) {
+    $path = substr($path, strlen($routeBase));
+} else {
+    // Fallback por si cambia el servidor/rewrite
+    $path = str_replace('/api/purchases', '', $path);
+}
 $pathParts = array_filter(explode('/', $path));
 
 if ($method === 'GET' && count($pathParts) === 1) {
     $userId = $pathParts[0];
-    $stmt = $pdo->prepare("SELECT * FROM purchases WHERE user_id = ? ORDER BY id DESC");
+    $stmt = $pdo->prepare("SELECT p.*, u.username, u.email, u.name FROM purchases p INNER JOIN users u ON u.id = p.user_id WHERE p.user_id = ? ORDER BY p.id DESC");
     $stmt->execute([$userId]);
     $purchases = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
@@ -21,18 +32,28 @@ if ($method === 'GET' && count($pathParts) === 1) {
     echo json_encode($purchases);
 }
 
-if ($method === 'POST' && empty($path)) {
+if ($method === 'POST' && (empty($path) || $path === '/')) {
     $data = json_decode(file_get_contents('php://input'), true);
     $date = date('Y-m-d H:i:s');
+
+    $userId = $data['userId'] ?? null;
+    $items = $data['items'] ?? null;
+    $total = $data['total'] ?? null;
+
+    if (!$userId || !is_array($items) || count($items) === 0 || $total === null) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Datos incompletos para finalizar la compra.']);
+        exit;
+    }
     
     try {
         $pdo->beginTransaction();
         
         $purchaseStmt = $pdo->prepare("INSERT INTO purchases (user_id, date, total) VALUES (?, ?, ?)");
-        $purchaseStmt->execute([$data['userId'], $date, $data['total']]);
+        $purchaseStmt->execute([$userId, $date, $total]);
         $purchaseId = $pdo->lastInsertId();
         
-        foreach ($data['items'] as $item) {
+        foreach ($items as $item) {
             $itemStmt = $pdo->prepare("INSERT INTO purchase_items (purchase_id, product_id, product_name, product_emoji, price, quantity) VALUES (?, ?, ?, ?, ?, ?)");
             $itemStmt->execute([
                 $purchaseId,
@@ -45,7 +66,7 @@ if ($method === 'POST' && empty($path)) {
         }
         
         $clearCartStmt = $pdo->prepare("DELETE FROM cart WHERE user_id = ?");
-        $clearCartStmt->execute([$data['userId']]);
+        $clearCartStmt->execute([$userId]);
         
         $pdo->commit();
         echo json_encode(['id' => $purchaseId, 'success' => true]);

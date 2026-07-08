@@ -1,218 +1,140 @@
-const API_URL = 'api';
+// Ruta del API (modo simple). En hosting asegúrate de que exista /api/* con .htaccess.
+function getApiBaseUrl() {
+    const origin = window.location.origin;
+    let dir = window.location.pathname || '/';
+    if (!dir.endsWith('/')) {
+        const last = dir.split('/').pop() || '';
+        if (last.includes('.')) {
+            dir = dir.slice(0, dir.length - last.length);
+        } else {
+            dir = dir + '/';
+        }
+    }
+    return origin + dir.replace(/\/+$/, '/') + 'api';
+}
+
+const API_URL = getApiBaseUrl();
+
+async function apiFetch(path, options = {}) {
+    const url = `${API_URL}${String(path || '').startsWith('/') ? '' : '/'}${path}`;
+
+    // #region debug-point B:apiFetch
+    if (!url.includes('/debug/event')) {
+        fetch(`${API_URL}/debug/event`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                sessionId: 'login-cart-failure',
+                runId: 'pre',
+                hypothesisId: 'B',
+                location: 'script.js:apiFetch',
+                msg: '[DEBUG] apiFetch request',
+                data: { url, method: (options && options.method) ? String(options.method) : 'GET', hasBody: Boolean(options && options.body) }
+            })
+        }).catch(() => {});
+    }
+    // #endregion
+
+    const response = await fetch(url, options);
+    let data = null;
+    try {
+        data = await response.json();
+    } catch (_) {
+        data = null;
+    }
+    if (!response.ok) {
+        // #region debug-point D:apiFetch-error
+        if (!url.includes('/debug/event')) {
+            fetch(`${API_URL}/debug/event`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    sessionId: 'login-cart-failure',
+                    runId: 'pre',
+                    hypothesisId: 'D',
+                    location: 'script.js:apiFetch',
+                    msg: '[DEBUG] apiFetch response not ok',
+                    data: { url, status: response.status, hasErrorField: Boolean(data && data.error), error: data && data.error ? String(data.error) : null }
+                })
+            }).catch(() => {});
+        }
+        // #endregion
+        const message = data && data.error ? data.error : `Error HTTP ${response.status}`;
+        throw new Error(message);
+    }
+    return data;
+}
 
 let currentUser = null;
 let cart = [];
 
+const AUTH_STORAGE_KEY = 'eshop_currentUser';
+
+function persistCurrentUser() {
+    if (!currentUser) return;
+    const safeUser = {
+        id: currentUser.id,
+        name: currentUser.name,
+        username: currentUser.username,
+        email: currentUser.email
+    };
+    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(safeUser));
+}
+
+function restoreCurrentUser() {
+    try {
+        const raw = localStorage.getItem(AUTH_STORAGE_KEY);
+        if (!raw) return;
+        const data = JSON.parse(raw);
+        if (data && data.id) {
+            currentUser = data;
+        }
+    } catch (_) {
+        currentUser = null;
+    }
+}
+
+function clearStoredUser() {
+    localStorage.removeItem(AUTH_STORAGE_KEY);
+}
+
 const products = [
     {
         id: 1,
-        name: 'Ácido Sulfúrico',
-        shortDescription: 'Ácido sulfúrico técnico, 98% de pureza. Usado en procesos industriales y laboratorio.',
-        fullDescription: 'El ácido sulfúrico (H₂SO₄) es uno de los productos químicos más importantes y versátiles en la industria. Nuestro producto cuenta con una pureza del 98%, ideal para una amplia gama de aplicaciones.',
-        uses: 'Fabricación de fertilizantes, refinación de petróleo, tratamiento de aguas, baterías de plomo-ácido, síntesis química, limpieza de metales.',
-        safety: 'Corrosivo fuerte. Puede causar quemaduras graves. Evitar el contacto con la piel y ojos. Usar equipo de protección personal adecuado.',
-        formula: 'H₂SO₄',
-        purity: '98%',
-        price: 45.50,
-        stock: 50,
-        emoji: '⚗️'
+        name: 'Crema de Peinar de Coco',
+        image: 'assets/producto-coco.jpg',
+        shortDescription: 'Crema de peinar con extracto de coco para definir, suavizar y controlar el frizz sin enjuague.',
+        fullDescription: 'Nuestra Crema de Peinar de Coco está formulada con extracto de coco y activos nutritivos que ayudan a hidratar, suavizar y mejorar la manejabilidad del cabello sin dejarlo pesado.<br><br>Ideal para uso diario, ayuda a controlar el frizz, definir ondas o rizos y proteger las puntas, dejando un acabado sedoso y con brillo natural.<br><br><strong>Beneficios</strong><br>• Control del frizz y la resequedad<br>• Aporta suavidad y brillo natural<br>• Facilita el peinado y desenredo<br>• Ayuda a definir ondas o rizos<br>• Protege y mejora el aspecto de las puntas<br><br><strong>Modo de Uso</strong><br>Aplicar una cantidad pequeña sobre el cabello húmedo o seco, de medios a puntas. Peinar como de costumbre. No enjuagar. Ajustar la cantidad según el largo y tipo de cabello.<br><br><strong>Presentación</strong><br>Disponible en diferentes tamaños para uso personal o profesional.',
+        uses: '<strong>Aplicaciones</strong><br>• Peinado diario sin enjuague<br>• Definición de ondas o rizos<br>• Control del frizz<br>• Hidratación y suavidad en puntas resecas',
+        safety: 'Producto elaborado con ingredientes naturales e hipoalergénicos. Uso externo únicamente. Evitar el contacto directo con los ojos. En caso de irritación o reacción alérgica, suspender su uso y consultar a un especialista.',
+        formula: 'Extracto de Coco + Activos Nutritivos',
+        purity: 'Libre de Parabenos • Sin Sulfatos',
+        price: 25.99,
+        stock: 100,
+        emoji: '🥥'
     },
     {
         id: 2,
-        name: 'Hidróxido de Sodio',
-        shortDescription: 'Sosa cáustica escamas, 99% de pureza. Ideal para limpieza y procesos químicos.',
-        fullDescription: 'El hidróxido de sodio (NaOH), también conocido como sosa cáustica, es un álcali fuerte que se presenta en escamas blancas. Nuestro producto tiene una pureza del 99%.',
-        uses: 'Fabricación de jabones y detergentes, tratamiento de aguas, industria papelera, limpieza industrial, biodiesel, procesamiento de alimentos.',
-        safety: 'Corrosivo. Puede causar quemaduras graves. Reacciona violentamente con ácidos. Almacenar en lugar seco y fresco.',
-        formula: 'NaOH',
-        purity: '99%',
-        price: 32.00,
-        stock: 80,
-        emoji: '🧴'
-    },
-    {
-        id: 3,
-        name: 'Etanol Absoluto',
-        shortDescription: 'Alcohol etílico 99.9%. Apto para uso en laboratorio y aplicaciones industriales.',
-        fullDescription: 'El etanol absoluto (C₂H₅OH) es alcohol etílico de alta pureza, sin agua ni aditivos. Perfecto para aplicaciones donde la presencia de agua no es deseable.',
-        uses: 'Solvente en laboratorio, extracción de compuestos, limpieza de equipos, industria farmacéutica, cosmética, combustible.',
-        safety: 'Inflamable. Evitar fuentes de ignición. Mantener en recipiente cerrado. Puede causar irritación en vías respiratorias.',
-        formula: 'C₂H₅OH',
-        purity: '99.9%',
-        price: 28.75,
-        stock: 120,
-        emoji: '🍶'
-    },
-    {
-        id: 4,
-        name: 'Cloruro de Sodio',
-        shortDescription: 'Sal común, grado reactivo. 99.5% de pureza para uso analítico.',
-        fullDescription: 'El cloruro de sodio (NaCl), también conocido como sal común, es un compuesto iónico esencial para la vida. Nuestro producto es grado reactivo con 99.5% de pureza.',
-        uses: 'Análisis químico, preparación de disoluciones, conservación de alimentos, industria alimentaria, tratamiento de aguas, cloración.',
-        safety: 'Generalmente seguro en cantidades normales. Evitar consumo excesivo. Almacenar en lugar seco.',
-        formula: 'NaCl',
-        purity: '99.5%',
-        price: 15.20,
-        stock: 200,
-        emoji: '🧂'
-    },
-    {
-        id: 5,
-        name: 'Amoniaco',
-        shortDescription: 'Solución de amoniaco al 25%. Utilizado en limpieza y síntesis química.',
-        fullDescription: 'La solución de amoniaco (NH₃) es un gas disuelto en agua. Nuestra solución al 25% es ideal para múltiples aplicaciones industriales y domésticas.',
-        uses: 'Limpieza doméstica e industrial, fertilizantes, refrigeración, síntesis de productos farmacéuticos, tratamiento de metales, industria del caucho.',
-        safety: 'Irritante. Vapores pueden causar irritación en vías respiratorias y ojos. Usar en área ventilada.',
-        formula: 'NH₃ (aq)',
-        purity: '25%',
-        price: 22.00,
-        stock: 65,
+        name: 'Gotero de Coco',
+        image: 'assets/gotero-coco.jpg',
+        shortDescription: 'Sérum en gotero con extracto de coco para brillo, suavidad y control del frizz.',
+        fullDescription: 'El Gotero de Coco es un sérum ligero de rápida absorción, ideal para aportar brillo inmediato, suavidad y una sensación sedosa sin dejar el cabello pesado.<br><br><strong>Beneficios</strong><br>• Brillo instantáneo<br>• Suavidad y aspecto saludable<br>• Control del frizz<br>• Ayuda a proteger las puntas<br><br><strong>Modo de Uso</strong><br>Aplicar 2–4 gotas en la palma de la mano, frotar suavemente y distribuir de medios a puntas en cabello húmedo o seco. No enjuagar. Ajustar la cantidad según el largo del cabello.<br><br><strong>Presentación</strong><br>Frasco con gotero para aplicación precisa.',
+        uses: '<strong>Aplicaciones</strong><br>• Brillo y acabado final<br>• Control del frizz<br>• Suavidad en puntas resecas<br>• Rutina diaria de cuidado capilar',
+        safety: 'Uso externo únicamente. Evitar contacto con los ojos. Si ocurre irritación, suspender su uso. Mantener fuera del alcance de los niños.',
+        formula: 'Extracto de Coco + Aceites Naturales',
+        purity: 'Libre de Parabenos',
+        price: 19.99,
+        stock: 100,
         emoji: '💧'
-    },
-    {
-        id: 6,
-        name: 'Peróxido de Hidrógeno',
-        shortDescription: 'Agua oxigenada al 30%. Grado técnico para procesos oxidativos.',
-        fullDescription: 'El peróxido de hidrógeno (H₂O₂) es un poderoso agente oxidante. Nuestra solución al 30% es grado técnico ideal para procesos industriales.',
-        uses: 'Blanqueamiento de textiles y papel, tratamiento de aguas, desinfección, oxidación química, industria cosmética, limpieza de superficies.',
-        safety: 'Oxidante fuerte. Puede causar irritación. Evitar contacto con sustancias combustibles. Almacenar en recipiente ventilado.',
-        formula: 'H₂O₂',
-        purity: '30%',
-        price: 18.90,
-        stock: 90,
-        emoji: '✨'
-    },
-    {
-        id: 7,
-        name: 'Ácido Cítrico',
-        shortDescription: 'Ácido cítrico monohidratado, grado alimenticio. 99.5% de pureza.',
-        fullDescription: 'El ácido cítrico es un ácido orgánico triprótico que se encuentra naturalmente en los cítricos. Nuestro producto es monohidratado, grado alimenticio con 99.5% de pureza.',
-        uses: 'Industria alimentaria (conservante, acidulante), bebidas, cosmética, farmacia, limpieza y descalcificación, fotografía.',
-        safety: 'Generalmente seguro. Es irritante en concentraciones elevadas. Almacenar en lugar seco.',
-        formula: 'C₆H₈O₇·H₂O',
-        purity: '99.5%',
-        price: 35.00,
-        stock: 150,
-        emoji: '🍋'
-    },
-    {
-        id: 8,
-        name: 'Carbonato de Sodio',
-        shortDescription: 'Soda caliza, grado técnico. Usado en detergentes y procesos industriales.',
-        fullDescription: 'El carbonato de sodio (Na₂CO₃), también conocido como soda caliza o ceniza de sosa, es una sal de sodio del ácido carbónico. Nuestro producto es grado técnico.',
-        uses: 'Fabricación de jabones y detergentes, tratamiento de aguas, industria vidriera, papelera, textiles, limpieza doméstica, regulación de pH.',
-        safety: 'Irritante en contacto prolongado. Evitar inhalación de polvo. Almacenar en lugar seco y fresco.',
-        formula: 'Na₂CO₃',
-        purity: '99%',
-        price: 19.80,
-        stock: 110,
-        emoji: '🧪'
-    },
-    {
-        id: 9,
-        name: 'Ácido Nítrico',
-        shortDescription: 'Ácido nítrico concentrado, 70% de pureza. Ideal para laboratorio y síntesis.',
-        fullDescription: 'El ácido nítrico (HNO₃) es un ácido mineral fuerte y un poderoso agente oxidante. Nuestro producto está concentrado al 70% para múltiples aplicaciones.',
-        uses: 'Fabricación de fertilizantes, explosivos, nitratos, tratamiento de metales, grabado, laboratorio químico.',
-        safety: 'Corrosivo y oxidante. Puede causar quemaduras graves. Reacciona violentamente con sustancias orgánicas.',
-        formula: 'HNO₃',
-        purity: '70%',
-        price: 52.00,
-        stock: 45,
-        emoji: '🧪'
-    },
-    {
-        id: 10,
-        name: 'Cloroformo',
-        shortDescription: 'Cloroformo estabilizado, grado técnico. Solvente orgánico versatile.',
-        fullDescription: 'El cloroformo (CHCl₃) es un solvente orgánico no polar de uso común. Nuestro producto está estabilizado para mayor seguridad.',
-        uses: 'Solvente en extracciones, síntesis química, limpieza de equipos, industria farmacéutica, refrigeración (histórico).',
-        safety: 'Tóxico. Evitar inhalación y contacto prolongado. Usar solo en campana de extracción. Posible carcinógeno.',
-        formula: 'CHCl₃',
-        purity: '99%',
-        price: 48.50,
-        stock: 35,
-        emoji: '🫗'
-    },
-    {
-        id: 11,
-        name: 'Acetona',
-        shortDescription: 'Acetona pura, grado técnico. Solvente universal para múltiples usos.',
-        fullDescription: 'La acetona (CH₃COCH₃) es el solvente orgánico más simple y uno de los más utilizados en la industria y laboratorio.',
-        uses: 'Limpieza de superficies, removedor de pintura, solvente en síntesis, industria cosmética, laboratorio químico.',
-        safety: 'Altamente inflamable. Evitar fuentes de ignición. Vapores pueden causar mareos. Usar en área ventilada.',
-        formula: 'CH₃COCH₃',
-        purity: '99.5%',
-        price: 24.00,
-        stock: 180,
-        emoji: '🧴'
-    },
-    {
-        id: 12,
-        name: 'Glicerina',
-        shortDescription: 'Glicerina vegetal, 99.5% de pureza. Cosmética y farmacéutica.',
-        fullDescription: 'La glicerina (C₃H₈O₃), también llamada glicerol, es un alcohol trihídrico natural presente en grasas y aceites.',
-        uses: 'Industria cosmética, farmacéutica, alimentaria, humectante, lubricante, explosivos (nitroglicerina).',
-        safety: 'Generalmente seguro. Biodegradable. Puede causar irritación en piel sensible en casos raros.',
-        formula: 'C₃H₈O₃',
-        purity: '99.5%',
-        price: 29.90,
-        stock: 140,
-        emoji: '🧴'
-    },
-    {
-        id: 13,
-        name: 'Ácido Clorhídrico',
-        shortDescription: 'Ácido clorhídrico concentrado, 37%. Ácido fuerte de uso industrial.',
-        fullDescription: 'El ácido clorhídrico (HCl), también conocido como ácido muriático, es una disolución de cloruro de hidrógeno en agua.',
-        uses: 'Tratamiento de metales (decapado), limpieza industrial, tratamiento de aguas, pH regulator, laboratorio químico.',
-        safety: 'Corrosivo fuerte. Vapores irritantes. Puede causar quemaduras graves. Usar equipo de protección.',
-        formula: 'HCl',
-        purity: '37%',
-        price: 38.00,
-        stock: 70,
-        emoji: '⚗️'
-    },
-    {
-        id: 14,
-        name: 'Permanganato de Potasio',
-        shortDescription: 'Permanganato de potasio cristalizado, grado reactivo. Oxidante fuerte.',
-        fullDescription: 'El permanganato de potasio (KMnO₄) es un compuesto químico de color púrpura intenso y un poderoso agente oxidante.',
-        uses: 'Desinfección, tratamiento de aguas, análisis químico (titulación), oxidante en síntesis, blanqueo.',
-        safety: 'Oxidante fuerte. Puede causar quemaduras. Mancha la piel y textiles de forma permanente.',
-        formula: 'KMnO₄',
-        purity: '99%',
-        price: 42.50,
-        stock: 55,
-        emoji: '💜'
-    },
-    {
-        id: 15,
-        name: 'Tiosulfato de Sodio',
-        shortDescription: 'Tiosulfato de sodio pentahidratado, 99% de pureza. Fixador fotográfico.',
-        fullDescription: 'El tiosulfato de sodio (Na₂S₂O₃), también conocido como hipo, es un compuesto químico con múltiples aplicaciones industriales.',
-        uses: 'Fixador en fotografía, tratamiento de aguas (desclorinación), extracción de oro, antídoto para cianuro, laboratorio.',
-        safety: 'Generalmente seguro. Baja toxicidad. Puede causar irritación leve en contacto prolongado.',
-        formula: 'Na₂S₂O₃·5H₂O',
-        purity: '99%',
-        price: 26.00,
-        stock: 95,
-        emoji: '📸'
-    },
-    {
-        id: 16,
-        name: 'Yoduro de Potasio',
-        shortDescription: 'Yoduro de potasio, grado reactivo. 99% de pureza para laboratorio.',
-        fullDescription: 'El yoduro de potasio (KI) es un compuesto químico iónico formado por potasio y yodo. Es la fuente más común de yodo en aplicaciones.',
-        uses: 'Suplemento dietético (yodo), tratamiento de radiación, fotografía, síntesis química, laboratorio analítico.',
-        safety: 'Generalmente seguro en dosis adecuadas. Puede causar efectos adversos en dosis elevadas.',
-        formula: 'KI',
-        purity: '99%',
-        price: 44.00,
-        stock: 40,
-        emoji: '💊'
     }
 ];
+
+function renderProductMedia(product) {
+    if (product && product.image) {
+        return `<img src="${product.image}" alt="${product.name}">`;
+    }
+    return product && product.emoji ? product.emoji : '';
+}
 
 const particlesContainer = document.getElementById('particles');
 const loginBtn = document.getElementById('loginBtn');
@@ -224,6 +146,9 @@ const productosContent = document.getElementById('productosContent');
 const ventasContent = document.getElementById('ventasContent');
 const nosotrosContent = document.getElementById('nosotrosContent');
 const serviciosContent = document.getElementById('serviciosContent');
+const resenasContent = document.getElementById('resenasContent');
+const faqContent = document.getElementById('faqContent');
+const contactoContent = document.getElementById('contactoContent');
 const productGrid = document.getElementById('productGrid');
 const ventasProductGrid = document.getElementById('ventasProductGrid');
 const loginModal = document.getElementById('loginModal');
@@ -243,6 +168,7 @@ const cartModalClose = document.getElementById('cartModalClose');
 const cartItems = document.getElementById('cartItems');
 const cartEmpty = document.getElementById('cartEmpty');
 const cartTotal = document.getElementById('cartTotal');
+const cartOwner = document.getElementById('cartOwner');
 const subtotalEl = document.getElementById('subtotal');
 const totalEl = document.getElementById('total');
 const checkoutBtn = document.getElementById('checkoutBtn');
@@ -250,6 +176,32 @@ const ventasTabs = document.querySelectorAll('.ventas-tab');
 const ventasProductos = document.getElementById('ventasProductos');
 const ventasHistorial = document.getElementById('ventasHistorial');
 const historialContent = document.getElementById('historialContent');
+
+// Toasts (notificaciones bonitas)
+const toastContainer = document.getElementById('toastContainer');
+function showToast({ type = 'info', title = '', message = '', timeout = 3500 } = {}) {
+    if (!toastContainer) return;
+
+    const toast = document.createElement('div');
+    toast.className = `toast toast--${type}`;
+    const icon = type === 'success' ? '✓' : type === 'error' ? '!' : 'i';
+
+    toast.innerHTML = `
+        <div class="toast-icon" aria-hidden="true">${icon}</div>
+        <div class="toast-body">
+            ${title ? `<div class="toast-title">${title}</div>` : ''}
+            ${message ? `<div class="toast-text">${message}</div>` : ''}
+        </div>
+        <button class="toast-close" type="button" aria-label="Cerrar">×</button>
+    `;
+
+    const remove = () => {
+        if (toast && toast.parentNode) toast.parentNode.removeChild(toast);
+    };
+    toast.querySelector('.toast-close').addEventListener('click', remove);
+    toastContainer.appendChild(toast);
+    if (timeout > 0) setTimeout(remove, timeout);
+}
 
 function createParticles() {
     const particleCount = 60;
@@ -272,10 +224,29 @@ userBtn.addEventListener('click', () => {
     if (confirm('¿Deseas cerrar sesión?')) {
         currentUser = null;
         cart = [];
+        clearStoredUser();
         updateAuthButtons();
         updateCartUI();
+        // Cambia el chat a modo invitado
+        loadChatConversationId();
     }
 });
+
+function openLoginModalToLogin() {
+    loginModal.classList.remove('hidden');
+    tabBtns.forEach(b => b.classList.remove('active'));
+    const loginTab = Array.from(tabBtns).find(b => b.dataset.tab === 'login') || tabBtns[0];
+    if (loginTab) loginTab.classList.add('active');
+    loginForm.classList.remove('hidden');
+    registerForm.classList.add('hidden');
+    loginError.textContent = '';
+    registerError.textContent = '';
+}
+
+function updateCartOwnerLabel() {
+    if (!cartOwner) return;
+    cartOwner.textContent = currentUser ? currentUser.name : '—';
+}
 
 function updateAuthButtons() {
     if (currentUser) {
@@ -286,6 +257,7 @@ function updateAuthButtons() {
         loginBtn.classList.remove('hidden');
         userBtn.classList.add('hidden');
     }
+    updateCartOwnerLabel();
 }
 
 modalClose.addEventListener('click', () => {
@@ -326,24 +298,65 @@ loginForm.addEventListener('submit', async (e) => {
     const password = document.getElementById('loginPassword').value;
 
     try {
-        const response = await fetch(`${API_URL}/users/login`, {
+        // #region debug-point A:login-submit
+        fetch(`${API_URL}/debug/event`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                sessionId: 'login-cart-failure',
+                runId: 'pre',
+                hypothesisId: 'A',
+                location: 'script.js:login',
+                msg: '[DEBUG] login submit',
+                data: { hasCurrentUser: Boolean(currentUser) }
+            })
+        }).catch(() => {});
+        // #endregion
+
+        currentUser = await apiFetch('/users/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, password })
         });
-        
-        if (response.ok) {
-            currentUser = await response.json();
+        persistCurrentUser();
+            
+        // #region debug-point A:login-success
+        fetch(`${API_URL}/debug/event`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                sessionId: 'login-cart-failure',
+                runId: 'pre',
+                hypothesisId: 'A',
+                location: 'script.js:login',
+                msg: '[DEBUG] login success',
+                data: { id: currentUser && currentUser.id ? currentUser.id : null, name: currentUser && currentUser.name ? String(currentUser.name) : null, keys: currentUser ? Object.keys(currentUser) : [] }
+            })
+        }).catch(() => {});
+        // #endregion
+            
             loginModal.classList.add('hidden');
             updateAuthButtons();
+            loadChatConversationId();
             loginForm.reset();
             loginError.textContent = '';
             await loadCart();
-        } else {
-            loginError.textContent = 'Usuario o contraseña incorrectos';
-        }
     } catch (err) {
-        loginError.textContent = 'Error de conexión con el servidor';
+        // #region debug-point D:login-error
+        fetch(`${API_URL}/debug/event`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                sessionId: 'login-cart-failure',
+                runId: 'pre',
+                hypothesisId: 'D',
+                location: 'script.js:login',
+                msg: '[DEBUG] login error',
+                data: { message: err && err.message ? String(err.message) : null }
+            })
+        }).catch(() => {});
+        // #endregion
+        loginError.textContent = err && err.message ? err.message : 'Error de conexión con el servidor';
         console.error(err);
     }
 });
@@ -356,26 +369,66 @@ registerForm.addEventListener('submit', async (e) => {
     const password = document.getElementById('regPassword').value;
 
     try {
-        const response = await fetch(`${API_URL}/users/register`, {
+        // #region debug-point A:register-submit
+        fetch(`${API_URL}/debug/event`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                sessionId: 'login-cart-failure',
+                runId: 'pre',
+                hypothesisId: 'A',
+                location: 'script.js:register',
+                msg: '[DEBUG] register submit',
+                data: { hasCurrentUser: Boolean(currentUser), hasName: Boolean(name), hasEmail: Boolean(email), hasUsername: Boolean(username) }
+            })
+        }).catch(() => {});
+        // #endregion
+
+        currentUser = await apiFetch('/users/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name, email, username, password })
         });
-        
-        if (response.ok) {
-            const data = await response.json();
-            currentUser = data;
+        persistCurrentUser();
+            
+        // #region debug-point A:register-success
+        fetch(`${API_URL}/debug/event`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                sessionId: 'login-cart-failure',
+                runId: 'pre',
+                hypothesisId: 'A',
+                location: 'script.js:register',
+                msg: '[DEBUG] register success',
+                data: { id: currentUser && currentUser.id ? currentUser.id : null, name: currentUser && currentUser.name ? String(currentUser.name) : null, keys: currentUser ? Object.keys(currentUser) : [] }
+            })
+        }).catch(() => {});
+        // #endregion
+            
             loginModal.classList.add('hidden');
             updateAuthButtons();
+            loadChatConversationId();
             registerForm.reset();
             registerError.textContent = '';
+            await loadCart();
             alert('¡Registro exitoso! Bienvenido/a ' + name);
-        } else {
-            const errData = await response.json();
-            registerError.textContent = errData.error || 'Error al registrar';
-        }
     } catch (err) {
-        registerError.textContent = 'Error de conexión con el servidor';
+        // #region debug-point D:register-error
+        fetch(`${API_URL}/debug/event`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                sessionId: 'login-cart-failure',
+                runId: 'pre',
+                hypothesisId: 'D',
+                location: 'script.js:register',
+                msg: '[DEBUG] register error',
+                data: { message: err && err.message ? String(err.message) : null }
+            })
+        }).catch(() => {});
+        // #endregion
+        registerError.textContent = err && err.message ? err.message : 'Error de conexión con el servidor';
         console.error(err);
     }
 });
@@ -388,6 +441,19 @@ navLinks.forEach(link => {
         navLinks.forEach(l => l.classList.remove('active'));
         link.classList.add('active');
         
+        showSection(section);
+    });
+});
+
+// Links del footer
+document.querySelectorAll('.footer-link').forEach(link => {
+    link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const section = link.dataset.section;
+        navLinks.forEach(l => l.classList.remove('active'));
+        navLinks.forEach(l => {
+            if (l.dataset.section === section) l.classList.add('active');
+        });
         showSection(section);
     });
 });
@@ -410,12 +476,39 @@ document.querySelectorAll('.btn-primary, .btn-secondary').forEach(btn => {
     }
 });
 
+document.querySelectorAll('.ad-cta').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const section = btn.dataset.section || 'productos';
+        const productId = btn.dataset.productId ? parseInt(btn.dataset.productId, 10) : null;
+        
+        navLinks.forEach(l => l.classList.remove('active'));
+        navLinks.forEach(l => {
+            if (l.dataset.section === section) {
+                l.classList.add('active');
+            }
+        });
+        
+        showSection(section);
+        
+        if (section === 'productos' && productId) {
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                openProductModal(product);
+            }
+        }
+    });
+});
+
 function showSection(section) {
     inicioContent.classList.add('hidden');
     productosContent.classList.add('hidden');
     ventasContent.classList.add('hidden');
     nosotrosContent.classList.add('hidden');
     serviciosContent.classList.add('hidden');
+    if (resenasContent) resenasContent.classList.add('hidden');
+    if (faqContent) faqContent.classList.add('hidden');
+    if (contactoContent) contactoContent.classList.add('hidden');
     
     if (section === 'inicio') {
         inicioContent.classList.remove('hidden');
@@ -430,19 +523,109 @@ function showSection(section) {
         nosotrosContent.classList.remove('hidden');
     } else if (section === 'servicios') {
         serviciosContent.classList.remove('hidden');
+    } else if (section === 'resenas') {
+        if (resenasContent) resenasContent.classList.remove('hidden');
+    } else if (section === 'faq') {
+        if (faqContent) faqContent.classList.remove('hidden');
+    } else if (section === 'contacto') {
+        if (contactoContent) contactoContent.classList.remove('hidden');
     }
+}
+
+// Año en el footer
+const yearNowEl = document.getElementById('yearNow');
+if (yearNowEl) {
+    yearNowEl.textContent = String(new Date().getFullYear());
+}
+
+// Políticas rápidas (se muestran en el modal de producto)
+const policyCopy = {
+    envios: {
+        title: 'Política de envíos',
+        html: '<p>Procesamos pedidos rápido y te compartimos el seguimiento cuando esté disponible. El tiempo de entrega depende de tu zona.</p>'
+    },
+    devoluciones: {
+        title: 'Devoluciones',
+        html: '<p>Si tu producto llegó con algún inconveniente, contáctanos y te ayudamos a resolverlo. Conserva el empaque y la evidencia del estado.</p>'
+    },
+    privacidad: {
+        title: 'Privacidad',
+        html: '<p>Usamos tus datos solo para procesar tu compra y darte soporte. No compartimos tu información con terceros fuera de lo necesario para la entrega.</p>'
+    }
+};
+
+document.querySelectorAll('.policy-link').forEach(link => {
+    link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const key = link.dataset.policy;
+        const item = policyCopy[key];
+        if (!item) return;
+        modalBody.innerHTML = `
+            <h2 class="modal-product-name">${item.title}</h2>
+            <div class="modal-product-detail">
+                <div class="modal-product-detail-value">${item.html}</div>
+            </div>
+        `;
+        productModal.classList.remove('hidden');
+    });
+});
+
+// Formulario de contacto
+const contactForm = document.getElementById('contactForm');
+const contactStatus = document.getElementById('contactStatus');
+if (contactForm) {
+    contactForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (contactStatus) contactStatus.textContent = '';
+
+        const name = (document.getElementById('contactName')?.value || '').trim();
+        const email = (document.getElementById('contactEmail')?.value || '').trim();
+        const message = (document.getElementById('contactMessage')?.value || '').trim();
+
+        if (!name || !email || !message) {
+            showToast({ type: 'error', title: 'Faltan datos', message: 'Completa nombre, correo y mensaje.' });
+            return;
+        }
+
+        const submitBtn = contactForm.querySelector('button[type="submit"]');
+        if (submitBtn) submitBtn.disabled = true;
+        if (contactStatus) contactStatus.textContent = 'Enviando...';
+
+        try {
+            await apiFetch('/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, message })
+            });
+
+            contactForm.reset();
+            if (contactStatus) contactStatus.textContent = 'Listo: recibimos tu mensaje.';
+            showToast({ type: 'success', title: 'Mensaje enviado', message: 'Te responderemos lo antes posible.' });
+        } catch (err) {
+            console.error(err);
+            if (contactStatus) contactStatus.textContent = 'No se pudo enviar. Intenta de nuevo.';
+            showToast({ type: 'error', title: 'No se pudo enviar', message: err && err.message ? err.message : 'Intenta nuevamente.' });
+        } finally {
+            if (submitBtn) submitBtn.disabled = false;
+        }
+    });
 }
 
 function loadProducts() {
     productGrid.innerHTML = '';
-    products.forEach((product, index) => {
+    const query = normalizeText((document.getElementById('productSearch')?.value || '').trim());
+    const filtered = query
+        ? products.filter(p => normalizeText(`${p.name} ${p.shortDescription}`).includes(query))
+        : products;
+
+    filtered.forEach((product, index) => {
         const card = document.createElement('div');
         card.className = 'product-card';
         card.style.animationDelay = (index * 0.05) + 's';
         
         card.innerHTML = `
             <div class="product-image">
-                ${product.emoji}
+                ${renderProductMedia(product)}
             </div>
             <h3>${product.name}</h3>
             <p class="description">${product.shortDescription}</p>
@@ -461,14 +644,19 @@ function loadProducts() {
 
 function loadVentasProducts() {
     ventasProductGrid.innerHTML = '';
-    products.forEach((product, index) => {
+    const query = normalizeText((document.getElementById('ventasSearch')?.value || '').trim());
+    const filtered = query
+        ? products.filter(p => normalizeText(`${p.name} ${p.shortDescription}`).includes(query))
+        : products;
+
+    filtered.forEach((product, index) => {
         const card = document.createElement('div');
         card.className = 'ventas-product-card';
         card.style.animationDelay = (index * 0.05) + 's';
         
         card.innerHTML = `
             <div class="product-image">
-                ${product.emoji}
+                ${renderProductMedia(product)}
             </div>
             <h3>${product.name}</h3>
             <p class="description">${product.shortDescription}</p>
@@ -493,10 +681,20 @@ function loadVentasProducts() {
     });
 }
 
+// Buscadores
+const productSearchEl = document.getElementById('productSearch');
+if (productSearchEl) {
+    productSearchEl.addEventListener('input', () => loadProducts());
+}
+const ventasSearchEl = document.getElementById('ventasSearch');
+if (ventasSearchEl) {
+    ventasSearchEl.addEventListener('input', () => loadVentasProducts());
+}
+
 function openProductModal(product) {
     modalBody.innerHTML = `
         <div class="modal-product-image">
-            ${product.emoji}
+            ${renderProductMedia(product)}
         </div>
         <h2 class="modal-product-name">${product.name}</h2>
         
@@ -559,13 +757,33 @@ document.addEventListener('keydown', (e) => {
 
 async function addToCart(product) {
     if (!currentUser) {
-        alert('Por favor, inicia sesión para agregar productos al carrito');
-        loginModal.classList.remove('hidden');
+        showToast({ type: 'error', title: 'Inicia sesión', message: 'Debes iniciar sesión para agregar productos al carrito.' });
+        openLoginModalToLogin();
         return;
     }
 
     try {
-        await fetch(`${API_URL}/cart`, {
+        // #region debug-point A:addToCart-start
+        fetch(`${API_URL}/debug/event`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                sessionId: 'login-cart-failure',
+                runId: 'pre',
+                hypothesisId: 'A',
+                location: 'script.js:addToCart',
+                msg: '[DEBUG] addToCart start',
+                data: {
+                    apiUrl: API_URL,
+                    userId: currentUser && currentUser.id ? currentUser.id : null,
+                    userIdType: currentUser && currentUser.id !== undefined ? typeof currentUser.id : null,
+                    productId: product && product.id ? product.id : null
+                }
+            })
+        }).catch(() => {});
+        // #endregion
+
+        await apiFetch('/cart', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -577,27 +795,64 @@ async function addToCart(product) {
                 quantity: 1
             })
         });
-        
         await loadCart();
-        alert(`¡${product.name} agregado al carrito!`);
+
+        // #region debug-point D:addToCart-success
+        fetch(`${API_URL}/debug/event`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                sessionId: 'login-cart-failure',
+                runId: 'pre',
+                hypothesisId: 'D',
+                location: 'script.js:addToCart',
+                msg: '[DEBUG] addToCart success',
+                data: { cartSize: Array.isArray(cart) ? cart.length : null }
+            })
+        }).catch(() => {});
+        // #endregion
     } catch (err) {
+        // #region debug-point D:addToCart-error
+        fetch(`${API_URL}/debug/event`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                sessionId: 'login-cart-failure',
+                runId: 'pre',
+                hypothesisId: 'D',
+                location: 'script.js:addToCart',
+                msg: '[DEBUG] addToCart error',
+                data: { message: err && err.message ? String(err.message) : null }
+            })
+        }).catch(() => {});
+        // #endregion
         console.error(err);
-        alert('Error al agregar al carrito');
+        showToast({ type: 'error', title: 'No se pudo agregar', message: err && err.message ? err.message : 'Intenta de nuevo.' });
+        return;
     }
+    
+    showToast({ type: 'success', title: 'Agregado al carrito', message: product.name });
 }
 
 async function removeFromCart(cartItemId) {
+    if (!currentUser) {
+        openLoginModalToLogin();
+        return;
+    }
     try {
-        await fetch(`${API_URL}/cart/${cartItemId}`, {
-            method: 'DELETE'
-        });
+        await apiFetch(`/cart/${cartItemId}`, { method: 'DELETE' });
         await loadCart();
     } catch (err) {
         console.error(err);
+        alert(err && err.message ? err.message : 'Error al eliminar del carrito');
     }
 }
 
 async function updateQuantity(cartItemId, change) {
+    if (!currentUser) {
+        openLoginModalToLogin();
+        return;
+    }
     const item = cart.find(i => i.id === cartItemId);
     if (item) {
         const newQuantity = item.quantity + change;
@@ -605,7 +860,7 @@ async function updateQuantity(cartItemId, change) {
             await removeFromCart(cartItemId);
         } else {
             try {
-                await fetch(`${API_URL}/cart/${cartItemId}`, {
+                await apiFetch(`/cart/${cartItemId}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ quantity: newQuantity })
@@ -613,6 +868,7 @@ async function updateQuantity(cartItemId, change) {
                 await loadCart();
             } catch (err) {
                 console.error(err);
+                alert(err && err.message ? err.message : 'Error al actualizar cantidad');
             }
         }
     }
@@ -626,18 +882,77 @@ async function loadCart() {
     }
     
     try {
-        const response = await fetch(`${API_URL}/cart/${currentUser.id}`);
-        const data = await response.json();
+        const data = await apiFetch(`/cart/${currentUser.id}`);
+        if (!Array.isArray(data)) {
+            throw new Error('Respuesta inválida del carrito');
+        }
+
+        // #region debug-point C:loadCart-raw
+        fetch(`${API_URL}/debug/event`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                sessionId: 'login-cart-failure',
+                runId: 'pre',
+                hypothesisId: 'C',
+                location: 'script.js:loadCart',
+                msg: '[DEBUG] loadCart raw response',
+                data: {
+                    length: data.length,
+                    sampleKeys: data[0] ? Object.keys(data[0]) : [],
+                    sampleId: data[0] && data[0].id !== undefined ? data[0].id : null
+                }
+            })
+        }).catch(() => {});
+        // #endregion
+
         cart = data.map(item => ({
             ...item,
+            id: Number(item.id),
             userId: item.user_id,
             productId: item.product_id,
             productName: item.product_name,
-            productEmoji: item.product_emoji
+            productEmoji: item.product_emoji,
+            price: item.price !== undefined && item.price !== null ? Number(item.price) : 0,
+            quantity: item.quantity !== undefined && item.quantity !== null ? Number(item.quantity) : 0
         }));
+
+        // #region debug-point C:loadCart-mapped
+        fetch(`${API_URL}/debug/event`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                sessionId: 'login-cart-failure',
+                runId: 'pre',
+                hypothesisId: 'C',
+                location: 'script.js:loadCart',
+                msg: '[DEBUG] loadCart mapped result',
+                data: {
+                    length: cart.length,
+                    first: cart[0] ? { id: cart[0].id, userId: cart[0].userId, productId: cart[0].productId, productName: cart[0].productName } : null
+                }
+            })
+        }).catch(() => {});
+        // #endregion
         updateCartUI();
     } catch (err) {
+        // #region debug-point D:loadCart-error
+        fetch(`${API_URL}/debug/event`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                sessionId: 'login-cart-failure',
+                runId: 'pre',
+                hypothesisId: 'D',
+                location: 'script.js:loadCart',
+                msg: '[DEBUG] loadCart error',
+                data: { message: err && err.message ? String(err.message) : null }
+            })
+        }).catch(() => {});
+        // #endregion
         console.error(err);
+        cart = [];
+        updateCartUI();
     }
 }
 
@@ -666,22 +981,39 @@ function renderCartItems() {
     cartTotal.classList.remove('hidden');
     
     cartItems.innerHTML = cart.map(item => `
-        <div class="cart-item">
+        <div class="cart-item" data-id="${item.id}">
             <span class="cart-item-emoji">${item.productEmoji}</span>
             <div class="cart-item-info">
                 <div class="cart-item-name">${item.productName}</div>
-                <div class="cart-item-price">$${item.price.toFixed(2)} c/u</div>
+                <div class="cart-item-price">Agregado por: ${currentUser ? currentUser.name : '—'}</div>
+                <div class="cart-item-price">$${parseFloat(item.price).toFixed(2)} c/u</div>
             </div>
             <div class="cart-item-quantity">
-                <button class="quantity-btn" onclick="updateQuantity(${item.id}, -1)">-</button>
+                <button class="quantity-btn" data-action="decrease" data-id="${item.id}">-</button>
                 <span class="quantity-value">${item.quantity}</span>
-                <button class="quantity-btn" onclick="updateQuantity(${item.id}, 1)">+</button>
+                <button class="quantity-btn" data-action="increase" data-id="${item.id}">+</button>
             </div>
-            <button class="remove-btn" onclick="removeFromCart(${item.id})">Eliminar</button>
+            <button class="remove-btn" data-id="${item.id}">Eliminar</button>
         </div>
     `).join('');
     
-    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    cartItems.querySelectorAll('.quantity-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const id = parseInt(e.target.dataset.id);
+            const action = e.target.dataset.action;
+            const change = action === 'increase' ? 1 : -1;
+            updateQuantity(id, change);
+        });
+    });
+    
+    cartItems.querySelectorAll('.remove-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const id = parseInt(e.target.dataset.id);
+            removeFromCart(id);
+        });
+    });
+    
+    const subtotal = cart.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
     const total = subtotal;
     
     subtotalEl.textContent = `$${subtotal.toFixed(2)}`;
@@ -689,9 +1021,12 @@ function renderCartItems() {
 }
 
 cartBtn.addEventListener('click', async () => {
-    if (currentUser) {
-        await loadCart();
+    if (!currentUser) {
+        showToast({ type: 'info', title: 'Inicia sesión', message: 'Debes iniciar sesión para ver tu carrito.' });
+        openLoginModalToLogin();
+        return;
     }
+    await loadCart();
     renderCartItems();
     cartModal.classList.remove('hidden');
 });
@@ -706,28 +1041,26 @@ cartModal.querySelector('.modal-overlay').addEventListener('click', () => {
 
 checkoutBtn.addEventListener('click', async () => {
     if (!currentUser) {
-        alert('Por favor, inicia sesión para realizar una compra');
-        cartModal.classList.add('hidden');
-        loginModal.classList.remove('hidden');
+        showToast({ type: 'error', title: 'Inicia sesión', message: 'Debes iniciar sesión para finalizar la compra.' });
+        openLoginModalToLogin();
         return;
     }
-    
     if (cart.length === 0) {
-        alert('Tu carrito está vacío');
+        showToast({ type: 'error', title: 'Carrito vacío', message: 'Agrega un producto para continuar.' });
         return;
     }
     
     try {
-        const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const total = cart.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
         const itemsForPurchase = cart.map(item => ({
             id: item.productId,
             name: item.productName,
             emoji: item.productEmoji,
-            price: item.price,
+            price: parseFloat(item.price),
             quantity: item.quantity
         }));
         
-        await fetch(`${API_URL}/purchases`, {
+        const purchaseResp = await fetch(`${API_URL}/purchases`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -736,14 +1069,21 @@ checkoutBtn.addEventListener('click', async () => {
                 total: total
             })
         });
+        if (!purchaseResp.ok) {
+            throw new Error(`HTTP ${purchaseResp.status}`);
+        }
         
         await loadCart();
+        
+        updateCartUI();
         cartModal.classList.add('hidden');
-        alert('¡Compra realizada con éxito!');
-        loadPurchaseHistory();
+        showToast({ type: 'success', title: 'Compra realizada', message: 'Gracias por tu compra. ¡Tu pedido va en camino!' });
+        if (currentUser) {
+            loadPurchaseHistory();
+        }
     } catch (err) {
         console.error(err);
-        alert('Error al finalizar la compra');
+        showToast({ type: 'error', title: 'No se pudo finalizar', message: err && err.message ? err.message : 'Inténtalo nuevamente.' });
     }
 });
 
@@ -809,6 +1149,376 @@ ventasTabs.forEach(tab => {
     });
 });
 
+const chatbotToggle = document.getElementById('chatbotToggle');
+const chatbotWindow = document.getElementById('chatbotWindow');
+const chatbotClose = document.getElementById('chatbotClose');
+const chatbotInput = document.getElementById('chatbotInput');
+const chatbotSend = document.getElementById('chatbotSend');
+const chatbotMessages = document.getElementById('chatbotMessages');
+
+const chatbotState = {
+    lastIntent: null
+};
+
+let chatConversationId = null;
+
+function getChatConversationStorageKey() {
+    return currentUser ? `chatConversationId_user_${currentUser.id}` : 'chatConversationId_guest';
+}
+
+function loadChatConversationId() {
+    const key = getChatConversationStorageKey();
+    const raw = localStorage.getItem(key);
+    chatConversationId = raw ? parseInt(raw, 10) : null;
+    if (Number.isNaN(chatConversationId)) chatConversationId = null;
+}
+
+function saveChatConversationId(id) {
+    const key = getChatConversationStorageKey();
+    if (!id) {
+        localStorage.removeItem(key);
+        chatConversationId = null;
+        return;
+    }
+    chatConversationId = id;
+    localStorage.setItem(key, String(id));
+}
+
+chatbotToggle.addEventListener('click', () => {
+    chatbotWindow.classList.toggle('hidden');
+    if (!chatbotWindow.classList.contains('hidden')) {
+        chatbotInput.focus();
+    }
+});
+
+chatbotClose.addEventListener('click', () => {
+    chatbotWindow.classList.add('hidden');
+});
+
+function normalizeText(text) {
+    return String(text || '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9\s@._-]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+function containsAny(text, words) {
+    return words.some(w => text.includes(w));
+}
+
+function getProductsList() {
+    return Array.isArray(products) ? products : [];
+}
+
+function getProductAliases() {
+    return [
+        { id: 1, aliases: ['champu', 'shampoo', 'champu de coco', 'champu coco', 'coco natural'] },
+        { id: 2, aliases: ['gotero', 'gotero de coco', 'serum', 'aceite', 'coco gotero'] }
+    ];
+}
+
+function findReferencedProduct(message) {
+    const list = getProductsList();
+    const aliases = getProductAliases();
+    const hits = [];
+    
+    for (const product of list) {
+        const normalizedName = normalizeText(product.name);
+        let score = 0;
+        
+        if (normalizedName && message.includes(normalizedName)) score += 6;
+        
+        const aliasGroup = aliases.find(a => a.id === product.id);
+        if (aliasGroup) {
+            for (const alias of aliasGroup.aliases) {
+                if (message.includes(normalizeText(alias))) score += 3;
+            }
+        }
+        
+        const nameTokens = normalizedName.split(' ').filter(Boolean);
+        for (const token of nameTokens) {
+            if (token.length >= 4 && message.includes(token)) score += 1;
+        }
+        
+        if (score > 0) hits.push({ product, score });
+    }
+    
+    hits.sort((a, b) => b.score - a.score);
+    return hits.length ? hits[0].product : null;
+}
+
+function addMessage(text, isUser = false) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `chat-message ${isUser ? 'user' : 'bot'}`;
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'message-content';
+    contentDiv.textContent = String(text || '');
+    messageDiv.appendChild(contentDiv);
+    chatbotMessages.appendChild(messageDiv);
+    chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+    return messageDiv;
+}
+
+function executeChatAction(action) {
+    if (!action) return;
+    
+    if (action.type === 'navigate') {
+        const section = action.section || 'inicio';
+        navLinks.forEach(l => l.classList.remove('active'));
+        navLinks.forEach(l => {
+            if (l.dataset.section === section) {
+                l.classList.add('active');
+            }
+        });
+        showSection(section);
+    }
+    
+    if (action.type === 'openProduct') {
+        const productId = action.productId;
+        const product = getProductsList().find(p => p.id === productId);
+        if (product) {
+            navLinks.forEach(l => l.classList.remove('active'));
+            navLinks.forEach(l => {
+                if (l.dataset.section === 'productos') {
+                    l.classList.add('active');
+                }
+            });
+            showSection('productos');
+            openProductModal(product);
+        }
+    }
+    
+    if (action.type === 'addToCart') {
+        const productId = action.productId;
+        const product = getProductsList().find(p => p.id === productId);
+        if (product) {
+            addToCart(product);
+        }
+    }
+}
+
+function buildBotResponse(userMessage) {
+    const message = normalizeText(userMessage);
+    const list = getProductsList();
+    const referencedProduct = findReferencedProduct(message);
+    const hasProducts = list.length > 0;
+    const isGreeting = containsAny(message, ['hola', 'buenas', 'buenos dias', 'buenas tardes', 'buenas noches', 'hi', 'hello']);
+    const isThanks = containsAny(message, ['gracias', 'muchas gracias', 'genial', 'perfecto']);
+    const isGoodbye = containsAny(message, ['adios', 'hasta luego', 'bye', 'nos vemos']);
+    const asksHelp = containsAny(message, ['ayuda', 'help', 'soporte', 'problema', 'error']);
+
+    const intentRules = [
+        {
+            name: 'greeting',
+            test: () => isGreeting,
+            respond: () => ({ text: currentUser ? `¡Hola, ${currentUser.name}! ¿En qué te ayudo hoy?` : '¡Hola! ¿En qué te ayudo hoy?' })
+        },
+        {
+            name: 'product_price',
+            test: () => containsAny(message, ['precio', 'cuanto cuesta', 'cuanto vale', 'costo', 'valor']),
+            respond: () => {
+                if (!hasProducts) return { text: 'Ahora mismo no encuentro productos cargados. Intenta recargar la página.' };
+                if (referencedProduct) {
+                    return { text: `El precio de ${referencedProduct.name} es $${Number(referencedProduct.price).toFixed(2)}.` };
+                }
+                const lines = list.map(p => `- ${p.name}: $${Number(p.price).toFixed(2)}`);
+                return { text: `Estos son los precios:\n${lines.join('\n')}` };
+            }
+        },
+        {
+            name: 'product_info',
+            test: () => containsAny(message, ['producto', 'productos', 'champu', 'shampoo', 'gotero', 'coco', 'ingredientes', 'para que sirve', 'descripcion', 'serum', 'aceite', 'catalogo', 'catologo', 'lista']),
+            respond: () => {
+                if (!hasProducts) return { text: 'Ahora mismo no encuentro productos cargados. Intenta recargar la página.' };
+                if (containsAny(message, ['ver productos', 'lista', 'catalogo', 'catologo'])) {
+                    const lines = list.map(p => `- ${p.name}: ${p.shortDescription}`);
+                    return { text: `Tenemos estos productos:\n${lines.join('\n')}`, action: { type: 'navigate', section: 'productos' } };
+                }
+                if (referencedProduct) {
+                    return { text: `${referencedProduct.emoji} ${referencedProduct.name}\n${referencedProduct.shortDescription}\n\nTe lo abro para que veas los detalles.`, action: { type: 'openProduct', productId: referencedProduct.id } };
+                }
+                const lines = list.map(p => `- ${p.name}`);
+                return { text: `Tenemos:\n${lines.join('\n')}\n\nDime cuál quieres ver (ej: “ver gotero de coco”).`, action: { type: 'navigate', section: 'productos' } };
+            }
+        },
+        {
+            name: 'how_to_buy',
+            test: () => containsAny(message, ['comprar', 'como compro', 'como comprar', 'pagar', 'checkout', 'finalizar compra']),
+            respond: () => {
+                if (referencedProduct && containsAny(message, ['agregar', 'anadir', 'añadir', 'comprar'])) {
+                    return { text: `Listo. Agregué ${referencedProduct.name} al carrito. Abre el carrito (🛒) para finalizar la compra.`, action: { type: 'addToCart', productId: referencedProduct.id } };
+                }
+                const steps = [
+                    '1) Ve a “Ventas”.',
+                    '2) Pulsa “Agregar al Carrito”.',
+                    '3) Abre el carrito (🛒) y pulsa “Finalizar Compra”.'
+                ];
+                return { text: steps.join('\n'), action: { type: 'navigate', section: 'ventas' } };
+            }
+        },
+        {
+            name: 'open_product',
+            test: () => containsAny(message, ['abrir', 'mostrar', 'ver']) && Boolean(referencedProduct),
+            respond: () => ({ text: `Abriendo ${referencedProduct.name}...`, action: { type: 'openProduct', productId: referencedProduct.id } })
+        },
+        {
+            name: 'go_to_section',
+            test: () => containsAny(message, ['ir a', 'abre', 'abrir']) && containsAny(message, ['productos', 'ventas', 'inicio', 'nosotros', 'servicios']),
+            respond: () => {
+                const section = containsAny(message, ['ventas']) ? 'ventas'
+                    : containsAny(message, ['productos']) ? 'productos'
+                    : containsAny(message, ['nosotros']) ? 'nosotros'
+                    : containsAny(message, ['servicios']) ? 'servicios'
+                    : 'inicio';
+                return { text: `Listo, te llevo a “${section}”.`, action: { type: 'navigate', section } };
+            }
+        },
+        {
+            name: 'cart_actions',
+            test: () => containsAny(message, ['carrito', 'sumar', 'restar', 'quitar', 'eliminar', 'cantidad', 'no me deja sumar', 'no me deja quitar']),
+            respond: () => {
+                const base = `Puedes abrir el carrito con el botón 🛒.\nDentro puedes aumentar/disminuir cantidades con + / - y eliminar con “Eliminar”.`;
+                if (cart.length === 0) return `${base}\n\nAhora mismo tu carrito está vacío.`;
+                return `${base}\n\nAhora mismo tienes ${cart.reduce((s, i) => s + i.quantity, 0)} artículo(s) en el carrito.`;
+            }
+        },
+        {
+            name: 'cart_problem',
+            test: () => containsAny(message, ['no me deja', 'no funciona', 'no sirve', 'no puedo']) && containsAny(message, ['carrito', 'agregar', 'sumar', 'restar', 'eliminar']),
+            respond: () => {
+                const checks = [
+                    'Probemos rápido:',
+                    '1) Recarga la página (F5).',
+                    '2) Abre el carrito y prueba + / -.',
+                    '3) Asegúrate de tener sesión iniciada.',
+                    '4) Si el problema sigue, prueba cerrar sesión e iniciar de nuevo.'
+                ];
+                return `${checks.join('\n')}\n\nDime exactamente qué botón no responde (+, -, Eliminar o Agregar al carrito) y si estabas con sesión iniciada.`;
+            }
+        },
+        {
+            name: 'auth_login',
+            test: () => containsAny(message, ['iniciar sesion', 'login', 'entrar', 'iniciar', 'usuario', 'contraseña', 'contrasena']),
+            respond: () => {
+                if (currentUser) return `Ya tienes sesión iniciada como ${currentUser.name}.`;
+                return 'Para iniciar sesión: pulsa “Iniciar Sesión”, escribe tu usuario y contraseña, y presiona “Ingresar”.';
+            }
+        },
+        {
+            name: 'auth_register',
+            test: () => containsAny(message, ['registrar', 'registro', 'crear cuenta', 'registrarse', 'cuenta nueva']),
+            respond: () => 'Para registrarte: pulsa “Iniciar Sesión” y luego la pestaña “Registrarse”. Completa los datos y presiona “Registrarse”.'
+        },
+        {
+            name: 'purchase_history',
+            test: () => containsAny(message, ['historial', 'mis compras', 'compras', 'pedido', 'pedidos']),
+            respond: () => {
+                if (!currentUser) return 'Para ver el historial de compras necesitas iniciar sesión. Está en “Ventas” → “Historial de Compras”.';
+                return 'Tu historial está en “Ventas” → “Historial de Compras”.';
+            }
+        },
+        {
+            name: 'about_services',
+            test: () => containsAny(message, ['servicios', 'entrega', 'envio', 'garantia', 'devolucion', 'contacto', 'horario', 'direccion', 'email', 'telefono']),
+            respond: () => 'Puedes ver “Servicios” para detalles de entrega y soporte. En “Nosotros” está la información de contacto.'
+        },
+        {
+            name: 'thanks',
+            test: () => isThanks,
+            respond: () => '¡De nada! Si quieres, dime qué estás intentando hacer y te guío paso a paso.'
+        },
+        {
+            name: 'goodbye',
+            test: () => isGoodbye,
+            respond: () => '¡Perfecto! Si vuelves a necesitar ayuda, aquí estaré.'
+        },
+        {
+            name: 'help',
+            test: () => asksHelp,
+            respond: () => {
+                return [
+                    'Puedo ayudarte con:',
+                    '- Productos y precios',
+                    '- Cómo comprar',
+                    '- Problemas con el carrito',
+                    '- Registro e inicio de sesión',
+                    '- Ver el catálogo (Champú de Coco Natural / Gotero de Coco)',
+                    '',
+                    'Dime qué necesitas (ej: “no me deja agregar al carrito”).'
+                ].join('\n');
+            }
+        }
+    ];
+
+    const matched = intentRules.find(r => r.test());
+    if (matched) {
+        chatbotState.lastIntent = matched.name;
+        const result = matched.respond();
+        if (typeof result === 'string') return { text: result };
+        return result;
+    }
+
+    chatbotState.lastIntent = 'unknown';
+    return { text: 'Entiendo. Para ayudarte mejor, dime qué quieres hacer:\n- Ver productos\n- Saber precio\n- Agregar al carrito\n- Finalizar compra\n- Ver historial\n\nEjemplos:\n- “precio del gotero”\n- “abrir champú”\n- “agregar gotero al carrito”' };
+}
+
+function sendMessage() {
+    const message = chatbotInput.value.trim();
+    if (message) {
+        addMessage(message, true);
+        chatbotInput.value = '';
+        
+        // Mensaje placeholder mientras responde el servicio
+        const typingEl = addMessage('Escribiendo...', false);
+        const typingContent = typingEl.querySelector('.message-content');
+
+        (async () => {
+            try {
+                const response = await fetch(`${API_URL}/ai-chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message,
+                        userId: currentUser ? currentUser.id : null,
+                        conversationId: chatConversationId
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+                if (data && data.conversationId) {
+                    saveChatConversationId(parseInt(data.conversationId, 10));
+                }
+
+                const reply = data && data.reply ? String(data.reply) : '';
+                typingContent.textContent = reply || 'No pude generar respuesta ahora mismo.';
+            } catch (err) {
+                console.error(err);
+                // Fallback al bot local si el servicio falla
+                const fallback = buildBotResponse(message);
+                typingContent.textContent = fallback.text;
+                executeChatAction(fallback.action);
+            }
+        })();
+    }
+}
+
+chatbotSend.addEventListener('click', sendMessage);
+
+chatbotInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        sendMessage();
+    }
+});
+
 createParticles();
+restoreCurrentUser();
 updateAuthButtons();
-updateCartUI();
+loadChatConversationId();
+loadCart();

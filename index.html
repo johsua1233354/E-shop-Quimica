@@ -3,16 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E-Shop Química - Inicio</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>E-Shop - Champú de Coco</title>
+    <meta name="description" content="E-Shop Coco: cuidado capilar a base de coco. Compra champú y sérum con entrega rápida y atención personalizada.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="video/styles.css">
 </head>
 <body>
     <div id="particles"></div>
-
-    <h1>A ramon le gusta el pito</h1>
-        
+    
     <button id="loginBtn" class="login-btn-top">
-        <span>🔐 Iniciar sesion </span>
+        <span>🔐 Iniciar Sesión</span>
     </button>
     
     <button id="userBtn" class="user-btn-top hidden">
@@ -27,8 +29,11 @@
     <header class="main-header">
         <div class="header-content">
             <div class="logo-title">
-                <div class="logo">�</div>
-                <h1>E-Shop Química</h1>
+                <div class="logo" aria-hidden="true">🥥</div>
+                <div class="brand">
+                    <h1>E-Shop Coco</h1>
+                    <p class="brand-tagline">Cuidado capilar con coco real</p>
+                </div>
             </div>
             <nav class="nav-links">
                 <a href="#" class="nav-link active" data-section="inicio">Inicio</a>
@@ -36,6 +41,9 @@
                 <a href="#" class="nav-link" data-section="productos">Productos</a>
                 <a href="#" class="nav-link" data-section="nosotros">Nosotros</a>
                 <a href="#" class="nav-link" data-section="servicios">Servicios</a>
+                <a href="#" class="nav-link" data-section="resenas">Reseñas</a>
+                <a href="#" class="nav-link" data-section="faq">FAQ</a>
+                <a href="#" class="nav-link" data-section="contacto">Contacto</a>
             </nav>
         </div>
     </header>
@@ -44,21 +52,41 @@
         <section id="inicioContent" class="content-section">
             <div class="hero">
                 <div class="hero-content">
-                    <h2 class="hero-title" id="heroTitle">Soluciones Químicas <span class="gradient-text">Innovadoras</span></h2>
-                    <p class="hero-subtitle">Descubre nuestra amplia gama de productos químicos de la más alta calidad para todas tus necesidades industriales y de laboratorio.</p>
+                    <div class="hero-badge">🥥 Fórmula natural • Libre de parabenos</div>
+                    <h2 class="hero-title" id="heroTitle">Línea Capilar de Coco <span class="gradient-text">Natural</span></h2>
+                    <p class="hero-subtitle">Hidratación profunda, brillo y suavidad desde el primer lavado. Productos ligeros, efectivos y con aroma delicioso.</p>
                     <div class="hero-buttons">
-                        <a href="#" class="btn-primary" data-section="productos">Ver Productos</a>
-                        <a href="#" class="btn-secondary" data-section="nosotros">Saber Más</a>
+                        <a href="#" class="btn-primary" data-section="ventas">Comprar ahora</a>
+                        <a href="#" class="btn-secondary" data-section="productos">Ver catálogo</a>
+                    </div>
+                    <div class="trust-row" aria-label="Beneficios principales">
+                        <div class="trust-item">
+                            <div class="trust-title">⭐ 4.9/5</div>
+                            <div class="trust-sub">Clientes felices</div>
+                        </div>
+                        <div class="trust-item">
+                            <div class="trust-title">🚚 48h</div>
+                            <div class="trust-sub">Entrega rápida</div>
+                        </div>
+                        <div class="trust-item">
+                            <div class="trust-title">🛡️ Seguro</div>
+                            <div class="trust-sub">Pago protegido</div>
+                        </div>
                     </div>
                 </div>
                 <div class="hero-animation">
-                    <div class="floating-icons">
-                        <div class="floating-icon" style="--i:0">⚗️</div>
-                        <div class="floating-icon" style="--i:1">🧪</div>
-                        <div class="floating-icon" style="--i:2">🔬</div>
-                        <div class="floating-icon" style="--i:3">🧴</div>
-                        <div class="floating-icon" style="--i:4">💧</div>
-                        <div class="floating-icon" style="--i:5">✨</div>
+                    <div class="ad-video-card" aria-label="Promoción de producto">
+                        <div class="video-wrapper ad-video">
+                            <video autoplay muted loop playsinline>
+                                <source src="video/Video de Experimiento 2.0.mp4" type="video/mp4">
+                                Tu navegador no soporta video HTML5.
+                            </video>
+                            <div class="ad-overlay">
+                                <div class="ad-kicker">🥥 Fórmula Natural</div>
+                                <div class="ad-headline">Brillo y suavidad desde el primer lavado</div>
+                                <a href="#" class="ad-cta" data-section="productos" data-product-id="1">Comprar ahora</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -75,7 +103,7 @@
                     <p>Todos los productos con certificaciones oficiales</p>
                 </div>
                 <div class="feature-card" style="--delay:2">
-                    <div class="feature-icon">�</div>
+                    <div class="feature-icon">🧴</div>
                     <h3>Asesoría Técnica</h3>
                     <p>Equipo de expertos listos para ayudarte</p>
                 </div>
@@ -91,6 +119,12 @@
             <div class="section-header">
                 <h2>Nuestros Productos</h2>
                 <p>Explora nuestra completa línea de productos químicos</p>
+            </div>
+            <div class="section-tools">
+                <div class="search-box">
+                    <span class="search-icon">🔎</span>
+                    <input id="productSearch" type="search" placeholder="Buscar productos (ej: champú, gotero, coco)…" autocomplete="off">
+                </div>
             </div>
             <div id="productGrid" class="product-grid"></div>
         </section>
@@ -125,14 +159,14 @@
                             <span class="contact-icon">📍</span>
                             <div>
                                 <h4>Dirección</h4>
-                                <p>Calle Principal 123, Ciudad Industrial</p>
+                                <p><a href="https://maps.app.goo.gl/mvGbYZjufMFEtrxg9" target="_blank" rel="noopener noreferrer">Ver ubicación en Google Maps</a></p>
                             </div>
                         </div>
                         <div class="contact-item">
                             <span class="contact-icon">📞</span>
                             <div>
                                 <h4>Teléfono</h4>
-                                <p>+1 (555) 123-4567</p>
+                                <p><a href="https://wa.me/18298436523" target="_blank" rel="noopener noreferrer">+1 (829) 843-6523</a></p>
                             </div>
                         </div>
                         <div class="contact-item">
@@ -165,6 +199,12 @@
                     <button class="ventas-tab" data-ventas-tab="historial">Historial de Compras</button>
                 </div>
                 <div id="ventasProductos" class="ventas-tab-content">
+                    <div class="section-tools">
+                        <div class="search-box">
+                            <span class="search-icon">🔎</span>
+                            <input id="ventasSearch" type="search" placeholder="Buscar en ventas…" autocomplete="off">
+                        </div>
+                    </div>
                     <div id="ventasProductGrid" class="product-grid"></div>
                 </div>
                 <div id="ventasHistorial" class="ventas-tab-content hidden">
@@ -213,7 +253,156 @@
                 </div>
             </div>
         </section>
+
+        <section id="resenasContent" class="content-section hidden">
+            <div class="section-header">
+                <h2>Reseñas</h2>
+                <p>Historias reales de clientes que ya probaron E‑Shop Coco</p>
+            </div>
+            <div class="reviews-grid">
+                <article class="review-card">
+                    <div class="review-top">
+                        <div class="review-stars">★★★★★</div>
+                        <div class="review-badge">Compra verificada</div>
+                    </div>
+                    <p class="review-text">“Me dejó el cabello suave desde el primer uso. El frizz bajó muchísimo y el olor es increíble.”</p>
+                    <div class="review-author">
+                        <div class="review-avatar">A</div>
+                        <div>
+                            <div class="review-name">Ana M.</div>
+                            <div class="review-meta">Santo Domingo</div>
+                        </div>
+                    </div>
+                </article>
+                <article class="review-card">
+                    <div class="review-top">
+                        <div class="review-stars">★★★★★</div>
+                        <div class="review-badge">Recomendado</div>
+                    </div>
+                    <p class="review-text">“El gotero es perfecto para las puntas. No engrasa y da un brillo súper natural.”</p>
+                    <div class="review-author">
+                        <div class="review-avatar">L</div>
+                        <div>
+                            <div class="review-name">Luis R.</div>
+                            <div class="review-meta">Santiago</div>
+                        </div>
+                    </div>
+                </article>
+                <article class="review-card">
+                    <div class="review-top">
+                        <div class="review-stars">★★★★☆</div>
+                        <div class="review-badge">Entrega rápida</div>
+                    </div>
+                    <p class="review-text">“Llegó rápido y bien empacado. Me gustó la textura del champú y el cabello queda manejable.”</p>
+                    <div class="review-author">
+                        <div class="review-avatar">C</div>
+                        <div>
+                            <div class="review-name">Carla P.</div>
+                            <div class="review-meta">La Vega</div>
+                        </div>
+                    </div>
+                </article>
+            </div>
+            <div class="cta-panel">
+                <div>
+                    <h3>¿Listo para probarlo?</h3>
+                    <p>Compra en 2 minutos y recibe tu pedido con seguimiento.</p>
+                </div>
+                <a href="#" class="btn-primary" data-section="ventas">Ir a Ventas</a>
+            </div>
+        </section>
+
+        <section id="faqContent" class="content-section hidden">
+            <div class="section-header">
+                <h2>Preguntas frecuentes</h2>
+                <p>Resolvemos tus dudas antes de comprar</p>
+            </div>
+            <div class="faq-list" id="faqList">
+                <details class="faq-item">
+                    <summary>¿Para qué tipo de cabello sirve?</summary>
+                    <div class="faq-content">El champú y el sérum están pensados para todo tipo de cabello. Si lo tienes muy seco o con frizz, notarás más el cambio.</div>
+                </details>
+                <details class="faq-item">
+                    <summary>¿Cada cuánto lo puedo usar?</summary>
+                    <div class="faq-content">Puedes usarlo a diario. Si tu cabello es graso, alterna con tu rutina habitual.</div>
+                </details>
+                <details class="faq-item">
+                    <summary>¿Cuánto tarda la entrega?</summary>
+                    <div class="faq-content">Normalmente entregamos en menos de 48 horas hábiles (según zona). Al finalizar compra verás los detalles.</div>
+                </details>
+                <details class="faq-item">
+                    <summary>¿Qué pasa si tengo una reacción?</summary>
+                    <div class="faq-content">Suspende el uso y contáctanos. Te orientamos según tu caso.</div>
+                </details>
+            </div>
+        </section>
+
+        <section id="contactoContent" class="content-section hidden">
+            <div class="section-header">
+                <h2>Contacto</h2>
+                <p>Escríbenos y te respondemos lo antes posible</p>
+            </div>
+            <div class="contact-layout">
+                <form id="contactForm" class="contact-form" autocomplete="on">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="contactName">Nombre</label>
+                            <input id="contactName" type="text" placeholder="Tu nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contactEmail">Correo</label>
+                            <input id="contactEmail" type="email" placeholder="tucorreo@gmail.com" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="contactMessage">Mensaje</label>
+                        <textarea id="contactMessage" rows="5" placeholder="Cuéntanos qué necesitas" required></textarea>
+                    </div>
+                    <button class="btn" type="submit">
+                        <span class="btn-text">Enviar mensaje</span>
+                        <span class="btn-glow"></span>
+                    </button>
+                    <p class="form-hint">Por seguridad, no compartas contraseñas ni códigos.</p>
+                    <p id="contactStatus" class="form-status"></p>
+                </form>
+                <aside class="contact-card">
+                    <h3>Atención</h3>
+                    <p>Si tienes una duda rápida, abre el chat de asistencia.</p>
+                    <div class="contact-mini">
+                        <div class="mini-row"><span>📍</span><span>Ciudad Industrial</span></div>
+                        <div class="mini-row"><span>🕐</span><span>Lun–Vie 8:00–18:00</span></div>
+                        <div class="mini-row"><span>✉️</span><span>info@eshopcoco.com</span></div>
+                    </div>
+                    <div class="policy-links">
+                        <a href="#" class="policy-link" data-policy="envios">Política de envíos</a>
+                        <a href="#" class="policy-link" data-policy="devoluciones">Devoluciones</a>
+                        <a href="#" class="policy-link" data-policy="privacidad">Privacidad</a>
+                    </div>
+                </aside>
+            </div>
+        </section>
     </main>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <div class="footer-logo">🥥</div>
+                <div>
+                    <div class="footer-title">E-Shop Coco</div>
+                    <div class="footer-sub">Cuidado capilar con coco real</div>
+                </div>
+            </div>
+            <div class="footer-links">
+                <a href="#" class="footer-link" data-section="ventas">Ventas</a>
+                <a href="#" class="footer-link" data-section="productos">Productos</a>
+                <a href="#" class="footer-link" data-section="faq">FAQ</a>
+                <a href="#" class="footer-link" data-section="contacto">Contacto</a>
+            </div>
+            <div class="footer-note">
+                <small>© <span id="yearNow"></span> E-Shop Coco. Todos los derechos reservados.</small>
+            </div>
+        </div>
+    </footer>
 
     <div id="loginModal" class="modal hidden">
         <div class="modal-overlay"></div>
@@ -221,7 +410,7 @@
             <button class="modal-close" id="modalClose">×</button>
             <div class="modal-body">
                 <div class="login-header">
-                    <div class="logo">�</div>
+                    <div class="logo" aria-hidden="true">🥥</div>
                     <h2>Iniciar Sesión</h2>
                     <p class="subtitle">Ingresa tus credenciales para continuar</p>
                 </div>
@@ -288,7 +477,7 @@
             <button class="modal-close" id="cartModalClose">×</button>
             <div class="modal-body">
                 <div class="cart-header">
-                    <h2>🛒 Carrito de Compras</h2>
+                    <h2>🛒 Carrito de: <span id="cartOwner">—</span></h2>
                 </div>
                 <div id="cartItems" class="cart-items"></div>
                 <div id="cartEmpty" class="cart-empty hidden">
@@ -311,6 +500,32 @@
             </div>
         </div>
     </div>
+
+    <div id="chatbot" class="chatbot">
+        <button id="chatbotToggle" class="chatbot-toggle">
+            <span>💬</span>
+        </button>
+        
+        <div id="chatbotWindow" class="chatbot-window hidden">
+            <div class="chatbot-header">
+                <h3>💬 Asistencia</h3>
+                <button id="chatbotClose" class="chatbot-close">×</button>
+            </div>
+            <div id="chatbotMessages" class="chatbot-messages">
+                <div class="chat-message bot">
+                    <div class="message-content">
+                        ¡Hola! Soy del equipo de soporte de E-Shop Coco. ¿En qué puedo ayudarte hoy?
+                    </div>
+                </div>
+            </div>
+            <div class="chatbot-input">
+                <input type="text" id="chatbotInput" placeholder="Escribe tu mensaje...">
+                <button id="chatbotSend">➤</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
 
     <script src="script.js"></script>
 </body>

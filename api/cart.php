@@ -2,8 +2,19 @@
 require_once '../config.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
-$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-$path = str_replace('/api/cart', '', $path);
+$requestPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+
+// Soporta instalación en subcarpeta (ej: /miapp/api/cart)
+$apiBase = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/'); // ej: /miapp/api
+$routeBase = $apiBase . '/cart';
+
+$path = $requestPath;
+if (strpos($path, $routeBase) === 0) {
+    $path = substr($path, strlen($routeBase));
+} else {
+    // Fallback por si cambia el servidor/rewrite
+    $path = str_replace('/api/cart', '', $path);
+}
 $pathParts = array_filter(explode('/', $path));
 
 if ($method === 'GET' && count($pathParts) === 1) {
@@ -13,29 +24,75 @@ if ($method === 'GET' && count($pathParts) === 1) {
     echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
 }
 
-if ($method === 'POST' && empty($path)) {
+if ($method === 'POST' && (empty($path) || $path === '/')) {
     $data = json_decode(file_get_contents('php://input'), true);
-    
-    $checkStmt = $pdo->prepare("SELECT * FROM cart WHERE user_id = ? AND product_id = ?");
-    $checkStmt->execute([$data['userId'], $data['productId']]);
-    $existing = $checkStmt->fetch(PDO::FETCH_ASSOC);
-    
-    if ($existing) {
-        $updateStmt = $pdo->prepare("UPDATE cart SET quantity = quantity + ? WHERE id = ?");
-        $updateStmt->execute([$data['quantity'] ?? 1, $existing['id']]);
-    } else {
-        $insertStmt = $pdo->prepare("INSERT INTO cart (user_id, product_id, product_name, product_emoji, price, quantity) VALUES (?, ?, ?, ?, ?, ?)");
-        $insertStmt->execute([
-            $data['userId'],
-            $data['productId'],
-            $data['productName'],
-            $data['productEmoji'],
-            $data['price'],
-            $data['quantity'] ?? 1
-        ]);
+
+    // Validaciones básicas
+    $userId = $data['userId'] ?? null;
+    $productId = $data['productId'] ?? null;
+    $productName = isset($data['productName']) ? (string)$data['productName'] : '';
+    $productEmoji = isset($data['productEmoji']) ? (string)$data['productEmoji'] : '';
+    $price = $data['price'] ?? null;
+    $quantity = isset($data['quantity']) ? (int)$data['quantity'] : 1;
+    if ($quantity <= 0) $quantity = 1;
+
+    if (!$userId || !$productId || $productName === '' || $price === null) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Datos incompletos para agregar al carrito.']);
+        exit;
     }
-    
-    echo json_encode(['success' => true]);
+
+    try {
+        $checkStmt = $pdo->prepare("SELECT * FROM cart WHERE user_id = ? AND product_id = ?");
+        $checkStmt->execute([$userId, $productId]);
+        $existing = $checkStmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($existing) {
+            $updateStmt = $pdo->prepare("UPDATE cart SET quantity = quantity + ? WHERE id = ?");
+            $updateStmt->execute([$quantity, $existing['id']]);
+        } else {
+            $insertStmt = $pdo->prepare("INSERT INTO cart (user_id, product_id, product_name, product_emoji, price, quantity) VALUES (?, ?, ?, ?, ?, ?)");
+            $insertStmt->execute([
+                $userId,
+                $productId,
+                $productName,
+                $productEmoji,
+                $price,
+                $quantity
+            ]);
+        }
+
+        echo json_encode(['success' => true]);
+    } catch (PDOException $e) {
+        // Si el hosting/DB no soporta emojis (charset/collation), evitamos romper la compra:
+        // reintenta guardando sin emoji.
+        $msg = $e->getMessage();
+        try {
+            $checkStmt = $pdo->prepare("SELECT * FROM cart WHERE user_id = ? AND product_id = ?");
+            $checkStmt->execute([$userId, $productId]);
+            $existing = $checkStmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($existing) {
+                $updateStmt = $pdo->prepare("UPDATE cart SET quantity = quantity + ? WHERE id = ?");
+                $updateStmt->execute([$quantity, $existing['id']]);
+            } else {
+                $insertStmt = $pdo->prepare("INSERT INTO cart (user_id, product_id, product_name, product_emoji, price, quantity) VALUES (?, ?, ?, ?, ?, ?)");
+                $insertStmt->execute([
+                    $userId,
+                    $productId,
+                    $productName,
+                    '',
+                    $price,
+                    $quantity
+                ]);
+            }
+
+            echo json_encode(['success' => true, 'warning' => 'Carrito guardado sin emoji por compatibilidad del servidor.']);
+        } catch (PDOException $e2) {
+            http_response_code(500);
+            echo json_encode(['error' => 'No se pudo agregar al carrito.', 'details' => $msg]);
+        }
+    }
 }
 
 if ($method === 'PUT' && count($pathParts) === 1) {

@@ -3,6 +3,7 @@ const sql = require('mssql');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 const PORT = 3000;
@@ -10,6 +11,33 @@ const PORT = 3000;
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(__dirname));
+
+app.get('/api/debug/health', (req, res) => {
+    try {
+        const logPath = path.join(__dirname, '.dbg', 'trae-debug-log-login-cart-failure.ndjson');
+        let count = 0;
+        if (fs.existsSync(logPath)) {
+            const raw = fs.readFileSync(logPath, 'utf8');
+            count = raw.split('\n').filter(Boolean).length;
+        }
+        res.json({ ok: true, sessionId: 'login-cart-failure', logCount: count });
+    } catch (err) {
+        res.status(500).json({ ok: false, error: err.message });
+    }
+});
+
+app.post('/api/debug/event', (req, res) => {
+    try {
+        const outDir = path.join(__dirname, '.dbg');
+        fs.mkdirSync(outDir, { recursive: true });
+        const logPath = path.join(outDir, 'trae-debug-log-login-cart-failure.ndjson');
+        const payload = { ts: Date.now(), ...req.body };
+        fs.appendFileSync(logPath, JSON.stringify(payload) + '\n', 'utf8');
+        res.json({ ok: true });
+    } catch (err) {
+        res.status(500).json({ ok: false, error: err.message });
+    }
+});
 
 const dbConfig = {
     server: 'localhost',
