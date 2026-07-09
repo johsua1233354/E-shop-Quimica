@@ -3,529 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E-Shop - Champú de Coco</title>
-    <meta name="description" content="E-Shop Coco: cuidado capilar a base de coco. Compra champú y sérum con entrega rápida y atención personalizada.">
+    <title>FARD Roblox - Fuerza Aérea Dominicana Robloxiana</title>
+    <link rel="icon" type="image/png" href="img/logofard.png">
+    <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="video/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div id="particles"></div>
+    <div class="stars"></div>
+    <div class="stars2"></div>
+    <div class="stars3"></div>
     
-    <button id="loginBtn" class="login-btn-top">
-        <span>🔐 Iniciar Sesión</span>
-    </button>
-    
-    <button id="userBtn" class="user-btn-top hidden">
-        <span id="userDisplay">👤 Usuario</span>
-    </button>
-    
-    <button id="cartBtn" class="cart-btn-top">
-        <span>🛒 Carrito</span>
-        <span id="cartCount" class="cart-count hidden">0</span>
-    </button>
-
-    <header class="main-header">
-        <div class="header-content">
-            <div class="logo-title">
-                <div class="logo" aria-hidden="true">🥥</div>
-                <div class="brand">
-                    <h1>E-Shop Coco</h1>
-                    <p class="brand-tagline">Cuidado capilar con coco real</p>
-                </div>
-            </div>
-            <nav class="nav-links">
-                <a href="#" class="nav-link active" data-section="inicio">Inicio</a>
-                <a href="#" class="nav-link" data-section="ventas">Ventas</a>
-                <a href="#" class="nav-link" data-section="productos">Productos</a>
-                <a href="#" class="nav-link" data-section="nosotros">Nosotros</a>
-                <a href="#" class="nav-link" data-section="servicios">Servicios</a>
-                <a href="#" class="nav-link" data-section="resenas">Reseñas</a>
-                <a href="#" class="nav-link" data-section="faq">FAQ</a>
-                <a href="#" class="nav-link" data-section="contacto">Contacto</a>
-            </nav>
+    <nav class="navbar">
+        <div class="logo">
+            <img src="img/logofard.png" alt="Logo FARD" class="logo-img">
+            FARD
         </div>
-    </header>
+        <ul class="nav-links">
+            <li><a href="#inicio">Inicio</a></li>
+            <li><a href="#nosotros">Nosotros</a></li>
+            <li><a href="#enlaces">Enlaces</a></li>
+        </ul>
+    </nav>
 
-    <main>
-        <section id="inicioContent" class="content-section">
-            <div class="hero">
-                <div class="hero-content">
-                    <div class="hero-badge">🥥 Fórmula natural • Libre de parabenos</div>
-                    <h2 class="hero-title" id="heroTitle">Línea Capilar de Coco <span class="gradient-text">Natural</span></h2>
-                    <p class="hero-subtitle">Hidratación profunda, brillo y suavidad desde el primer lavado. Productos ligeros, efectivos y con aroma delicioso.</p>
-                    <div class="hero-buttons">
-                        <a href="#" class="btn-primary" data-section="ventas">Comprar ahora</a>
-                        <a href="#" class="btn-secondary" data-section="productos">Ver catálogo</a>
-                    </div>
-                    <div class="trust-row" aria-label="Beneficios principales">
-                        <div class="trust-item">
-                            <div class="trust-title">⭐ 4.9/5</div>
-                            <div class="trust-sub">Clientes felices</div>
-                        </div>
-                        <div class="trust-item">
-                            <div class="trust-title">🚚 48h</div>
-                            <div class="trust-sub">Entrega rápida</div>
-                        </div>
-                        <div class="trust-item">
-                            <div class="trust-title">🛡️ Seguro</div>
-                            <div class="trust-sub">Pago protegido</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="hero-animation">
-                    <div class="ad-video-card" aria-label="Promoción de producto">
-                        <div class="video-wrapper ad-video">
-                            <video autoplay muted loop playsinline>
-                                <source src="video/Video de Experimiento 2.0.mp4" type="video/mp4">
-                                Tu navegador no soporta video HTML5.
-                            </video>
-                            <div class="ad-overlay">
-                                <div class="ad-kicker">🥥 Fórmula Natural</div>
-                                <div class="ad-headline">Brillo y suavidad desde el primer lavado</div>
-                                <a href="#" class="ad-cta" data-section="productos" data-product-id="1">Comprar ahora</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="features">
-                <div class="feature-card" style="--delay:0">
-                    <div class="feature-icon">🚀</div>
-                    <h3>Entrega Rápida</h3>
-                    <p>Recibe tus productos en menos de 48 horas hábiles</p>
-                </div>
-                <div class="feature-card" style="--delay:1">
-                    <div class="feature-icon">🛡️</div>
-                    <h3>Seguridad Garantizada</h3>
-                    <p>Todos los productos con certificaciones oficiales</p>
-                </div>
-                <div class="feature-card" style="--delay:2">
-                    <div class="feature-icon">🧴</div>
-                    <h3>Asesoría Técnica</h3>
-                    <p>Equipo de expertos listos para ayudarte</p>
-                </div>
-                <div class="feature-card" style="--delay:3">
-                    <div class="feature-icon">💎</div>
-                    <h3>Calidad Premium</h3>
-                    <p>Productos con la más alta pureza del mercado</p>
-                </div>
-            </div>
-        </section>
-        
-        <section id="productosContent" class="content-section hidden">
-            <div class="section-header">
-                <h2>Nuestros Productos</h2>
-                <p>Explora nuestra completa línea de productos químicos</p>
-            </div>
-            <div class="section-tools">
-                <div class="search-box">
-                    <span class="search-icon">🔎</span>
-                    <input id="productSearch" type="search" placeholder="Buscar productos (ej: champú, gotero, coco)…" autocomplete="off">
-                </div>
-            </div>
-            <div id="productGrid" class="product-grid"></div>
-        </section>
-        
-        <section id="nosotrosContent" class="content-section hidden">
-            <div class="about-container">
-                <div class="about-header">
-                    <h2>¿Quiénes Somos?</h2>
-                    <p class="about-subtitle">Tu socio confiable en productos químicos de calidad</p>
-                </div>
-                <div class="about-content">
-                    <div class="about-card">
-                        <div class="about-icon">🏢</div>
-                        <h3>Nuestra Historia</h3>
-                        <p>Con más de 15 años de experiencia en el mercado, E-Shop Química se ha consolidado como líder en la distribución de productos químicos industriales y de laboratorio. Nuestro compromiso con la calidad y la seguridad nos ha hecho merecedores de la confianza de cientos de empresas.</p>
-                    </div>
-                    <div class="about-card">
-                        <div class="about-icon">🎯</div>
-                        <h3>Nuestra Misión</h3>
-                        <p>Proporcionar productos químicos de la más alta calidad, cumpliendo con todas las normativas de seguridad y medio ambiente, mientras brindamos un servicio al cliente excepcional que supera las expectativas.</p>
-                    </div>
-                    <div class="about-card">
-                        <div class="about-icon">🌟</div>
-                        <h3>Nuestros Valores</h3>
-                        <p>Excelencia, seguridad, responsabilidad ambiental y honestidad son los pilares que guían cada una de nuestras acciones. Creemos en hacer las cosas bien, siempre.</p>
-                    </div>
-                </div>
-                <div class="contact-info">
-                    <h3>Información de Contacto</h3>
-                    <div class="contact-grid">
-                        <div class="contact-item">
-                            <span class="contact-icon">📍</span>
-                            <div>
-                                <h4>Dirección</h4>
-                                <p><a href="https://maps.app.goo.gl/mvGbYZjufMFEtrxg9" target="_blank" rel="noopener noreferrer">Ver ubicación en Google Maps</a></p>
-                            </div>
-                        </div>
-                        <div class="contact-item">
-                            <span class="contact-icon">📞</span>
-                            <div>
-                                <h4>Teléfono</h4>
-                                <p><a href="https://wa.me/18298436523" target="_blank" rel="noopener noreferrer">+1 (829) 843-6523</a></p>
-                            </div>
-                        </div>
-                        <div class="contact-item">
-                            <span class="contact-icon">✉️</span>
-                            <div>
-                                <h4>Email</h4>
-                                <p>info@eshopquimica.com</p>
-                            </div>
-                        </div>
-                        <div class="contact-item">
-                            <span class="contact-icon">🕐</span>
-                            <div>
-                                <h4>Horario</h4>
-                                <p>Lunes a Viernes: 8:00 AM - 6:00 PM</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
-        <section id="ventasContent" class="content-section hidden">
-            <div class="ventas-container">
-                <div class="ventas-header">
-                    <h2>Ventas</h2>
-                    <p class="ventas-subtitle">Compra productos químicos de calidad premium</p>
-                </div>
-                <div class="ventas-tabs">
-                    <button class="ventas-tab active" data-ventas-tab="productos">Productos</button>
-                    <button class="ventas-tab" data-ventas-tab="historial">Historial de Compras</button>
-                </div>
-                <div id="ventasProductos" class="ventas-tab-content">
-                    <div class="section-tools">
-                        <div class="search-box">
-                            <span class="search-icon">🔎</span>
-                            <input id="ventasSearch" type="search" placeholder="Buscar en ventas…" autocomplete="off">
-                        </div>
-                    </div>
-                    <div id="ventasProductGrid" class="product-grid"></div>
-                </div>
-                <div id="ventasHistorial" class="ventas-tab-content hidden">
-                    <div id="historialContent" class="historial-content"></div>
-                </div>
-            </div>
-        </section>
-
-        <section id="serviciosContent" class="content-section hidden">
-            <div class="services-container">
-                <div class="services-header">
-                    <h2>Nuestros Servicios</h2>
-                    <p class="services-subtitle">Soluciones completas para tus necesidades químicas</p>
-                </div>
-                <div class="services-grid">
-                    <div class="service-card">
-                        <div class="service-icon">🚚</div>
-                        <h3>Entrega Rápida</h3>
-                        <p>Envíos inmediatos a toda la región con seguimiento en tiempo real. Recibe tus productos en menos de 48 horas hábiles.</p>
-                    </div>
-                    <div class="service-card">
-                        <div class="service-icon">🔬</div>
-                        <h3>Asesoría Técnica</h3>
-                        <p>Equipo de químicos expertos listos para ayudarte a seleccionar el producto adecuado para tu aplicación específica.</p>
-                    </div>
-                    <div class="service-card">
-                        <div class="service-icon">📦</div>
-                        <h3>Empaque Personalizado</h3>
-                        <p>Soluciones de empaque según tus requerimientos, desde cantidades pequeñas hasta contenedores industriales.</p>
-                    </div>
-                    <div class="service-card">
-                        <div class="service-icon">🛡️</div>
-                        <h3>Certificaciones</h3>
-                        <p>Todos nuestros productos cuentan con certificaciones de calidad y hojas de seguridad (MSDS) actualizadas.</p>
-                    </div>
-                    <div class="service-card">
-                        <div class="service-icon">🎓</div>
-                        <h3>Capacitaciones</h3>
-                        <p>Cursos y talleres sobre manejo seguro de productos químicos para tu personal.</p>
-                    </div>
-                    <div class="service-card">
-                        <div class="service-icon">♻️</div>
-                        <h3>Gestión Ambiental</h3>
-                        <p>Asesoría en el manejo y disposición final de residuos químicos según normativas ambientales.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="resenasContent" class="content-section hidden">
-            <div class="section-header">
-                <h2>Reseñas</h2>
-                <p>Historias reales de clientes que ya probaron E‑Shop Coco</p>
-            </div>
-            <div class="reviews-grid">
-                <article class="review-card">
-                    <div class="review-top">
-                        <div class="review-stars">★★★★★</div>
-                        <div class="review-badge">Compra verificada</div>
-                    </div>
-                    <p class="review-text">“Me dejó el cabello suave desde el primer uso. El frizz bajó muchísimo y el olor es increíble.”</p>
-                    <div class="review-author">
-                        <div class="review-avatar">A</div>
-                        <div>
-                            <div class="review-name">Ana M.</div>
-                            <div class="review-meta">Santo Domingo</div>
-                        </div>
-                    </div>
-                </article>
-                <article class="review-card">
-                    <div class="review-top">
-                        <div class="review-stars">★★★★★</div>
-                        <div class="review-badge">Recomendado</div>
-                    </div>
-                    <p class="review-text">“El gotero es perfecto para las puntas. No engrasa y da un brillo súper natural.”</p>
-                    <div class="review-author">
-                        <div class="review-avatar">L</div>
-                        <div>
-                            <div class="review-name">Luis R.</div>
-                            <div class="review-meta">Santiago</div>
-                        </div>
-                    </div>
-                </article>
-                <article class="review-card">
-                    <div class="review-top">
-                        <div class="review-stars">★★★★☆</div>
-                        <div class="review-badge">Entrega rápida</div>
-                    </div>
-                    <p class="review-text">“Llegó rápido y bien empacado. Me gustó la textura del champú y el cabello queda manejable.”</p>
-                    <div class="review-author">
-                        <div class="review-avatar">C</div>
-                        <div>
-                            <div class="review-name">Carla P.</div>
-                            <div class="review-meta">La Vega</div>
-                        </div>
-                    </div>
-                </article>
-            </div>
-            <div class="cta-panel">
-                <div>
-                    <h3>¿Listo para probarlo?</h3>
-                    <p>Compra en 2 minutos y recibe tu pedido con seguimiento.</p>
-                </div>
-                <a href="#" class="btn-primary" data-section="ventas">Ir a Ventas</a>
-            </div>
-        </section>
-
-        <section id="faqContent" class="content-section hidden">
-            <div class="section-header">
-                <h2>Preguntas frecuentes</h2>
-                <p>Resolvemos tus dudas antes de comprar</p>
-            </div>
-            <div class="faq-list" id="faqList">
-                <details class="faq-item">
-                    <summary>¿Para qué tipo de cabello sirve?</summary>
-                    <div class="faq-content">El champú y el sérum están pensados para todo tipo de cabello. Si lo tienes muy seco o con frizz, notarás más el cambio.</div>
-                </details>
-                <details class="faq-item">
-                    <summary>¿Cada cuánto lo puedo usar?</summary>
-                    <div class="faq-content">Puedes usarlo a diario. Si tu cabello es graso, alterna con tu rutina habitual.</div>
-                </details>
-                <details class="faq-item">
-                    <summary>¿Cuánto tarda la entrega?</summary>
-                    <div class="faq-content">Normalmente entregamos en menos de 48 horas hábiles (según zona). Al finalizar compra verás los detalles.</div>
-                </details>
-                <details class="faq-item">
-                    <summary>¿Qué pasa si tengo una reacción?</summary>
-                    <div class="faq-content">Suspende el uso y contáctanos. Te orientamos según tu caso.</div>
-                </details>
-            </div>
-        </section>
-
-        <section id="contactoContent" class="content-section hidden">
-            <div class="section-header">
-                <h2>Contacto</h2>
-                <p>Escríbenos y te respondemos lo antes posible</p>
-            </div>
-            <div class="contact-layout">
-                <form id="contactForm" class="contact-form" autocomplete="on">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="contactName">Nombre</label>
-                            <input id="contactName" type="text" placeholder="Tu nombre" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="contactEmail">Correo</label>
-                            <input id="contactEmail" type="email" placeholder="tucorreo@gmail.com" required>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="contactMessage">Mensaje</label>
-                        <textarea id="contactMessage" rows="5" placeholder="Cuéntanos qué necesitas" required></textarea>
-                    </div>
-                    <button class="btn" type="submit">
-                        <span class="btn-text">Enviar mensaje</span>
-                        <span class="btn-glow"></span>
-                    </button>
-                    <p class="form-hint">Por seguridad, no compartas contraseñas ni códigos.</p>
-                    <p id="contactStatus" class="form-status"></p>
-                </form>
-                <aside class="contact-card">
-                    <h3>Atención</h3>
-                    <p>Si tienes una duda rápida, abre el chat de asistencia.</p>
-                    <div class="contact-mini">
-                        <div class="mini-row"><span>📍</span><span>Ciudad Industrial</span></div>
-                        <div class="mini-row"><span>🕐</span><span>Lun–Vie 8:00–18:00</span></div>
-                        <div class="mini-row"><span>✉️</span><span>info@eshopcoco.com</span></div>
-                    </div>
-                    <div class="policy-links">
-                        <a href="#" class="policy-link" data-policy="envios">Política de envíos</a>
-                        <a href="#" class="policy-link" data-policy="devoluciones">Devoluciones</a>
-                        <a href="#" class="policy-link" data-policy="privacidad">Privacidad</a>
-                    </div>
-                </aside>
-            </div>
-        </section>
-    </main>
-
-    <footer class="site-footer">
-        <div class="footer-inner">
-            <div class="footer-brand">
-                <div class="footer-logo">🥥</div>
-                <div>
-                    <div class="footer-title">E-Shop Coco</div>
-                    <div class="footer-sub">Cuidado capilar con coco real</div>
-                </div>
-            </div>
-            <div class="footer-links">
-                <a href="#" class="footer-link" data-section="ventas">Ventas</a>
-                <a href="#" class="footer-link" data-section="productos">Productos</a>
-                <a href="#" class="footer-link" data-section="faq">FAQ</a>
-                <a href="#" class="footer-link" data-section="contacto">Contacto</a>
-            </div>
-            <div class="footer-note">
-                <small>© <span id="yearNow"></span> E-Shop Coco. Todos los derechos reservados.</small>
+    <section id="inicio" class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">FUERZA AÉREA DOMINICANA ROBLOXIANA</h1>
+            <p class="hero-subtitle">¡Guardianes de Nuestro Cielo Soberano!</p>
+            <p style="font-size: 20px; margin-bottom: 40px; color: #b0c4de;">Roblox Roleplay</p>
+            <div class="hero-buttons">
+                <a href="#enlaces" class="btn btn-primary">Únete Ahora</a>
             </div>
         </div>
+        <div class="floating-plane">✈️</div>
+    </section>
+
+    <section id="nosotros" class="about">
+        <div class="container">
+            <h2 class="section-title">SOBRE NOSOTROS</h2>
+            <div class="about-cards">
+                <div class="card">
+                    <div class="card-icon">🎖️</div>
+                    <h3>Roleplay Realista</h3>
+                    <p>Experimenta el roleplay más auténtico de la Fuerza Aérea Dominicana en Roblox.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">👥</div>
+                    <h3>Comunidad Activa</h3>
+                    <p>Únete a nuestra comunidad creciente de pilotos y personal aeronáutico.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🚀</div>
+                    <h3>Misiones Emocionantes</h3>
+                    <p>Participa en misiones, entrenamientos y operaciones aéreas.</p>
+                </div>
+            </div>
+            <div class="about-gallery">
+                <div class="gallery-item">
+                    <img src="img/fard2.webp" alt="FARD 2">
+                </div>
+                <div class="gallery-item">
+                    <img src="img/fard3.webp" alt="FARD 3">
+                </div>
+                <div class="gallery-item">
+                    <img src="img/fard4.webp" alt="FARD 4">
+                </div>
+                <div class="gallery-item">
+                    <img src="img/fard5.webp" alt="FARD 5">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="enlaces" class="links">
+        <div class="container">
+            <h2 class="section-title">ÚNETE A NOSOTROS</h2>
+            <div class="links-grid">
+                <a href="https://discord.gg/3vuTvaYRAt" target="_blank" class="link-card discord">
+                    <img src="img/discord.png" alt="Discord" class="link-logo">
+                    <h3>Discord</h3>
+                    <p>Únete a nuestro servidor</p>
+                </a>
+                <a href="https://www.tiktok.com/@fard_roblox1" target="_blank" class="link-card tiktok">
+                    <img src="img/tiktok.webp" alt="TikTok" class="link-logo">
+                    <h3>TikTok</h3>
+                    <p>Síguenos en TikTok</p>
+                </a>
+                <a href="https://www.roblox.com/share/g/14381063" target="_blank" class="link-card roblox">
+                    <img src="img/roblox.webp" alt="Roblox" class="link-logo">
+                    <h3>Grupo Roblox</h3>
+                    <p>Únete al grupo</p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p>&copy; 2026 Fuerza Aérea Dominicana Robloxiana (FARD). Todos los derechos reservados.</p>
     </footer>
-
-    <div id="loginModal" class="modal hidden">
-        <div class="modal-overlay"></div>
-        <div class="modal-content">
-            <button class="modal-close" id="modalClose">×</button>
-            <div class="modal-body">
-                <div class="login-header">
-                    <div class="logo" aria-hidden="true">🥥</div>
-                    <h2>Iniciar Sesión</h2>
-                    <p class="subtitle">Ingresa tus credenciales para continuar</p>
-                </div>
-                
-                <div class="tab-buttons">
-                    <button class="tab-btn active" data-tab="login">Iniciar Sesión</button>
-                    <button class="tab-btn" data-tab="register">Registrarse</button>
-                </div>
-                
-                <form id="loginForm" class="auth-form">
-                    <div class="form-group">
-                        <label for="loginUsername">Usuario:</label>
-                        <input type="text" id="loginUsername" required placeholder="Ingresa tu usuario">
-                    </div>
-                    <div class="form-group">
-                        <label for="loginPassword">Contraseña:</label>
-                        <input type="password" id="loginPassword" required placeholder="Ingresa tu contraseña">
-                    </div>
-                    <button type="submit" class="btn">
-                        <span class="btn-text">Ingresar</span>
-                        <span class="btn-glow"></span>
-                    </button>
-                    <p id="loginError" class="error"></p>
-                </form>
-                
-                <form id="registerForm" class="auth-form hidden">
-                    <div class="form-group">
-                        <label for="regName">Nombre Completo:</label>
-                        <input type="text" id="regName" required placeholder="Ingresa tu nombre completo">
-                    </div>
-                    <div class="form-group">
-                        <label for="regEmail">Correo Electrónico:</label>
-                        <input type="email" id="regEmail" required placeholder="Ingresa tu correo">
-                    </div>
-                    <div class="form-group">
-                        <label for="regUsername">Nombre de Usuario:</label>
-                        <input type="text" id="regUsername" required placeholder="Elige un nombre de usuario">
-                    </div>
-                    <div class="form-group">
-                        <label for="regPassword">Contraseña:</label>
-                        <input type="password" id="regPassword" required placeholder="Crea una contraseña">
-                    </div>
-                    <button type="submit" class="btn">
-                        <span class="btn-text">Registrarse</span>
-                        <span class="btn-glow"></span>
-                    </button>
-                    <p id="registerError" class="error"></p>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <div id="productModal" class="modal hidden">
-        <div class="modal-overlay"></div>
-        <div class="modal-content">
-            <button class="modal-close" id="productModalClose">×</button>
-            <div class="modal-body" id="modalBody"></div>
-        </div>
-    </div>
-
-    <div id="cartModal" class="modal hidden">
-        <div class="modal-overlay"></div>
-        <div class="modal-content">
-            <button class="modal-close" id="cartModalClose">×</button>
-            <div class="modal-body">
-                <div class="cart-header">
-                    <h2>🛒 Carrito de: <span id="cartOwner">—</span></h2>
-                </div>
-                <div id="cartItems" class="cart-items"></div>
-                <div id="cartEmpty" class="cart-empty hidden">
-                    <p>Tu carrito está vacío</p>
-                </div>
-                <div id="cartTotal" class="cart-total hidden">
-                    <div class="total-row">
-                        <span>Subtotal:</span>
-                        <span id="subtotal">$0.00</span>
-                    </div>
-                    <div class="total-row final">
-                        <span>Total:</span>
-                        <span id="total">$0.00</span>
-                    </div>
-                    <button id="checkoutBtn" class="btn">
-                        <span class="btn-text">Finalizar Compra</span>
-                        <span class="btn-glow"></span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="chatbot" class="chatbot">
-        <button id="chatbotToggle" class="chatbot-toggle">
-            <span>💬</span>
-        </button>
-        
-        <div id="chatbotWindow" class="chatbot-window hidden">
-            <div class="chatbot-header">
-                <h3>💬 Asistencia</h3>
-                <button id="chatbotClose" class="chatbot-close">×</button>
-            </div>
-            <div id="chatbotMessages" class="chatbot-messages">
-                <div class="chat-message bot">
-                    <div class="message-content">
-                        ¡Hola! Soy del equipo de soporte de E-Shop Coco. ¿En qué puedo ayudarte hoy?
-                    </div>
-                </div>
-            </div>
-            <div class="chatbot-input">
-                <input type="text" id="chatbotInput" placeholder="Escribe tu mensaje...">
-                <button id="chatbotSend">➤</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
 
     <script src="script.js"></script>
 </body>
